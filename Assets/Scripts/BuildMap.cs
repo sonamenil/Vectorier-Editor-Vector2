@@ -1,19 +1,14 @@
+using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml;
 using UnityEditor;
+using UnityEditor.VersionControl;
 using UnityEngine;
-using System.Linq;
-using System;
-using UnityEditor.Experimental.GraphView;
-using System.Xml.Linq;
-using static UnityEngine.UI.CanvasScaler;
-using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
-using System.Xml.XPath;
-using System.Collections.Generic;
-using System.ComponentModel;
-using UnityEditor.Animations;
+using UnityEngine.SceneManagement;
+using Debug = UnityEngine.Debug;
 
 public class BuildMap : MonoBehaviour
 {
@@ -22,8 +17,12 @@ public class BuildMap : MonoBehaviour
 
     // Level Settings
     [Header("Level Settings")]
-    [Tooltip("Level that will get overridden.")] public string mapToOverride = "DOWNTOWN_STORY_02";
-    [Tooltip("Music that will be played on the level.")] public string levelMusic = "music_dinamic";
+    [Tooltip("Level that will get overridden.")]
+    public string mapToOverride = "DOWNTOWN_STORY_02";
+
+    [Tooltip("Music that will be played on the level.")]
+    public string levelMusic = "music_dinamic";
+
     [Tooltip("Volume of the music.")] public string MusicVolume = "0.3";
     [Tooltip("Background Image")] public string customBackground = "v_bg";
     [Tooltip("Background Width")] public string bg_Width = "2121";
@@ -35,25 +34,39 @@ public class BuildMap : MonoBehaviour
     {
         public string playerModelName = "Player";
         [Tooltip("Player's Spawn Name")] public string playerSpawnName = "PlayerSpawn";
-        [Tooltip("Duration until the player appears.")] public float playerSpawnTime = 0;
-        [Tooltip("Player Appearance (Default: 1)")] public string playerSkin = "1";
+
+        [Tooltip("Duration until the player appears.")]
+        public float playerSpawnTime;
+
+        [Tooltip("Player Appearance (Default: 1)")]
+        public string playerSkin = "1";
     }
     [Serializable]
     public class HunterSettings
     {
         public string hunterModelName = "Hunter";
         [Tooltip("Hunter's Spawn Name")] public string hunterSpawnName = "DefaultSpawn";
-        [Tooltip("Time it takes for the hunter to spawn in.")] public float hunterSpawnTime = 0;
+
+        [Tooltip("Time it takes for the hunter to spawn in.")]
+        public float hunterSpawnTime;
+
         [Tooltip("Hunter Respawn Name")] public string hunterAllowedSpawn = "Respawn";
-        [Tooltip("Hunter Appearance (Default: hunter)")] public string hunterSkin = "hunter";
-        [Tooltip("Hunter is able do to tricks")] public bool hunterTrickAllowed = false;
+
+        [Tooltip("Hunter Appearance (Default: hunter)")]
+        public string hunterSkin = "hunter";
+
+        [Tooltip("Hunter is able do to tricks")]
+        public bool hunterTrickAllowed;
+
         [Tooltip("Shows hunter icon or not")] public bool hunterIcon = true;
         [Tooltip("Ai Number (Default: 1)")] public int hunterAIType = 1;
     }
     [Header("Gameplay")]
     [SerializeField] private PlayerSettings Player;
     [SerializeField] private HunterSettings Hunter;
-    [Tooltip("Uses custom properties instead of prefixed (Will ignore the settings for player and hunter above.)")] public bool useCustomProperties;
+
+    [Tooltip("Uses custom properties instead of prefixed (Will ignore the settings for player and hunter above.)")]
+    public bool useCustomProperties;
 
     [TextArea(5, 20)]
     public string CustomModelProperties = @"<Model Name=""Player"" Type=""1"" Color=""0"" BirthSpawn=""PlayerSpawn"" AI=""0"" Time=""0"" Respawns=""Hunter"" ForceBlasts=""Hunter"" Trick=""1"" Item=""1"" Victory=""1"" Lose=""1""/>
@@ -65,17 +78,29 @@ public class BuildMap : MonoBehaviour
     public bool debugObjectWriting;
     public bool hunterPlaced;
 
+    public static event Action MapBuilt;
 
-    [MenuItem("Vectorier/BuildMap")]
+
+    [MenuItem("Vectorier/BuildMap %#&B")]
     public static void Build()
     {
-        UnityEngine.Debug.Log("Building...");
+        //This is used to cache the BuildMap component. This is done to avoid the FindObjectOfType method in loop and other places. This is a slow operation.
+        var buildMap = FindObjectOfType<BuildMap>();
+#if UNITY_EDITOR
+        UnityEditor.SceneManagement.EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
+#endif
+        if (string.IsNullOrEmpty(buildMap.vectorFilePath))
+        {
+            buildMap.vectorFilePath = VectorierSettings.GameDirectory;
+        }
+        Debug.Log("Building...");
+
 
         //Erase last build
         File.Delete(Application.dataPath + "/XML/build-map.xml");
         File.Copy(Application.dataPath + "/XML/empty-map-DONT-MODIFY.xml", Application.dataPath + "/XML/build-map.xml");
 
-        //Open the object.xml 
+        //Open the object.xml
         XmlDocument xml = new XmlDocument();
         xml.Load(Application.dataPath + "/XML/build-map.xml");
         
@@ -85,7 +110,7 @@ public class BuildMap : MonoBehaviour
             if (node.Attributes.GetNamedItem("Factor").Value == "1")
             {
 
-                GameObject.FindObjectOfType<BuildMap>().SetLevelProperties(xml, node); //Set the properties into the level
+                buildMap.SetLevelProperties(xml, node); //Set the properties into the level
 
                 // Get all GameObjects with tag "Image", then arrange them based on sorting order
                 GameObject[] imagesInScene = GameObject.FindGameObjectsWithTag("Image")
@@ -95,7 +120,7 @@ public class BuildMap : MonoBehaviour
                 //Write every GameObject with tag "Object", "Image", "Platform", "Area" and "Trigger" in the build-map.xml
                 foreach (GameObject spawnInScene in GameObject.FindGameObjectsWithTag("Spawn"))
                 {
-                    GameObject.FindObjectOfType<BuildMap>().ConvertToSpawn(node, xml, spawnInScene);
+                    buildMap.ConvertToSpawn(node, xml, spawnInScene);
                 }
 
                 foreach (GameObject imageInScene in imagesInScene)
@@ -107,7 +132,7 @@ public class BuildMap : MonoBehaviour
                         continue;
                     }
 
-                    GameObject.FindObjectOfType<BuildMap>().ConvertToImage(node, xml, imageInScene);
+                    buildMap.ConvertToImage(node, xml, imageInScene);
                 }
 
                 foreach (GameObject objectInScene in GameObject.FindGameObjectsWithTag("Object"))
@@ -119,7 +144,7 @@ public class BuildMap : MonoBehaviour
                         continue;
                     }
 
-                    GameObject.FindObjectOfType<BuildMap>().ConvertToObject(node, xml, objectInScene);
+                    buildMap.ConvertToObject(node, xml, objectInScene);
                 }
 
                 foreach (GameObject platformInScene in GameObject.FindGameObjectsWithTag("Platform"))
@@ -130,7 +155,7 @@ public class BuildMap : MonoBehaviour
                         // If the parent has the tag "Dynamic" skip this GameObject and continue.
                         continue;
                     }
-                    GameObject.FindObjectOfType<BuildMap>().ConvertToPlatform(node, xml, platformInScene);
+                    buildMap.ConvertToPlatform(node, xml, platformInScene);
                 }
 
                 foreach (GameObject triggerInScene in GameObject.FindGameObjectsWithTag("Trigger"))
@@ -141,7 +166,7 @@ public class BuildMap : MonoBehaviour
                         // If the parent has the tag "Dynamic" skip this GameObject and continue.
                         continue;
                     }
-                    GameObject.FindObjectOfType<BuildMap>().ConvertToTrigger(node, xml, triggerInScene);
+                    buildMap.ConvertToTrigger(node, xml, triggerInScene);
                 }
 
                 foreach (GameObject areaInScene in GameObject.FindGameObjectsWithTag("Area"))
@@ -152,7 +177,7 @@ public class BuildMap : MonoBehaviour
                         // If the parent has the tag "Dynamic" skip this GameObject and continue.
                         continue;
                     }
-                    GameObject.FindObjectOfType<BuildMap>().ConvertToArea(node, xml, areaInScene);
+                    buildMap.ConvertToArea(node, xml, areaInScene);
                 }
 
                 foreach (GameObject modelInScene in GameObject.FindGameObjectsWithTag("Model"))
@@ -163,17 +188,17 @@ public class BuildMap : MonoBehaviour
                         // If the parent has the tag "Dynamic" skip this GameObject and continue.
                         continue;
                     }
-                    GameObject.FindObjectOfType<BuildMap>().ConvertToModel(node, xml, modelInScene);
+                    buildMap.ConvertToModel(node, xml, modelInScene);
                 }
                 foreach (GameObject camInScene in GameObject.FindGameObjectsWithTag("Camera"))
                 {
-                    GameObject.FindObjectOfType<BuildMap>().ConvertToCamera(node, xml, camInScene); //Note: This is actually a trigger, but with camera zoom properties
+                    buildMap.ConvertToCamera(node, xml, camInScene); //Note: This is actually a trigger, but with camera zoom properties
                 }
 
                 foreach (GameObject dynamicInScene in GameObject.FindGameObjectsWithTag("Dynamic"))
                 {
                     UnityEngine.Transform dynamicInSceneTransform = dynamicInScene.transform;
-                    GameObject.FindObjectOfType<BuildMap>().ConvertToDynamic(node, xml, dynamicInScene, dynamicInSceneTransform);
+                    buildMap.ConvertToDynamic(node, xml, dynamicInScene, dynamicInSceneTransform);
                 }
             }
             if (node.Attributes.GetNamedItem("Factor").Value == "0.5")
@@ -181,22 +206,22 @@ public class BuildMap : MonoBehaviour
                 //Write every GameObject with tag "Backdrop" in the build-map.xml
                 foreach (GameObject bdInScene in GameObject.FindGameObjectsWithTag("Backdrop"))
                 {
-                    GameObject.FindObjectOfType<BuildMap>().ConvertToBackdrop(node, xml, bdInScene);
+                    buildMap.ConvertToBackdrop(node, xml, bdInScene);
                 }
             }
             if (node.Attributes.GetNamedItem("Factor").Value == "1.001")
             {
                 foreach (GameObject frontimageInScene in GameObject.FindGameObjectsWithTag("Top Image"))
                 {
-                    GameObject.FindObjectOfType<BuildMap>().ConvertToTopImage(node, xml, frontimageInScene);
+                    buildMap.ConvertToTopImage(node, xml, frontimageInScene);
                 }
             }
         }
 
         // vv  Build level directly into Vector (sweet !)  vv
-        GameObject.FindObjectOfType<BuildMap>().StartDzip();
-        GameObject.FindObjectOfType<BuildMap>().hunterPlaced = false;
-        UnityEngine.Debug.Log("Building done !");
+        buildMap.StartDzip();
+        buildMap.hunterPlaced = false;
+        Debug.Log("Building done !");
     }
 
     void ConvertToTopImage(XmlNode node, XmlDocument xml, GameObject frontimageInScene)
@@ -228,56 +253,7 @@ public class BuildMap : MonoBehaviour
                 ielement.SetAttribute("NativeY", height.ToString()); //Native Resolution of the Image in Y
             }
 
-            // create a new node
-            XmlElement propertiesElement = xml.CreateElement("Properties");
-            XmlElement staticElement = xml.CreateElement("Static");
-            XmlElement matrixElement = xml.CreateElement("Matrix");
-
-            // Check if the sprite image is flipped x,y or both
-            if (spriteRenderer.flipX || spriteRenderer.flipY || (spriteRenderer.flipX && spriteRenderer.flipY))
-            {
-                Bounds bounds = spriteRenderer.sprite.bounds;// Get the bounds of the sprite
-                Vector3 scale = frontimageInScene.transform.localScale; // Get the GameObject scale
-
-                float width = bounds.size.x * 100 * scale.x;
-                float height = bounds.size.y * 100 * scale.y;
-                float negative_width = width * -1;
-                float negative_height = height * -1;
-
-                // matrix, "A" represents X axis, while "D" represents the Y axis.
-                if (spriteRenderer.flipX && spriteRenderer.flipY)
-                {
-                    matrixElement.SetAttribute("A", negative_width.ToString());
-                    matrixElement.SetAttribute("B", "0");
-                    matrixElement.SetAttribute("C", "0");
-                    matrixElement.SetAttribute("D", negative_height.ToString());
-                    matrixElement.SetAttribute("Tx", "0");
-                    matrixElement.SetAttribute("Ty", "0");
-                }
-                else if (spriteRenderer.flipX)
-                {
-                    matrixElement.SetAttribute("A", negative_width.ToString());
-                    matrixElement.SetAttribute("B", "0");
-                    matrixElement.SetAttribute("C", "0");
-                    matrixElement.SetAttribute("D", height.ToString());
-                    matrixElement.SetAttribute("Tx", "0");
-                    matrixElement.SetAttribute("Ty", "0");
-                }
-                else if (spriteRenderer.flipY)
-                {
-                    matrixElement.SetAttribute("A", width.ToString());
-                    matrixElement.SetAttribute("B", "0");
-                    matrixElement.SetAttribute("C", "0");
-                    matrixElement.SetAttribute("D", negative_height.ToString());
-                    matrixElement.SetAttribute("Tx", "0");
-                    matrixElement.SetAttribute("Ty", "0");
-                }
-
-                //writes everything under the image node
-                staticElement.AppendChild(matrixElement);
-                propertiesElement.AppendChild(staticElement);
-                ielement.AppendChild(propertiesElement);
-            }
+            
             node.FirstChild.AppendChild(ielement); //Place it into the Object node
             xml.Save(Application.dataPath + "/XML/dzip/level_xml/" + mapToOverride + ".xml"); //Apply the modification to the build-map.xml file}
         }
@@ -308,7 +284,7 @@ public class BuildMap : MonoBehaviour
                 GameObject gameObjwithSpawnComponent = spawns.gameObject; //check every game object that has the spawn component
                 if (RespawnComponent.RespawnName == gameObjwithSpawnComponent.GetComponent<Spawn>().SpawnName)
                 {
-                    if (gameObjwithSpawnComponent.GetComponent<Spawn>().RefersToRespawn == true)
+                    if (gameObjwithSpawnComponent.GetComponent<Spawn>().RefersToRespawn)
                     {
                         // spawn element
                         XmlElement spawnInsideElement = xml.CreateElement("Spawn");
@@ -360,7 +336,7 @@ public class BuildMap : MonoBehaviour
 
             float Frames = RespawnComponent.RespawnSecond * 60;
 
-            string[][] setVariables = new string[][]
+            string[][] setVariables =
             {
                 new[] { "Name", "$Active", "Value", "1" },
                 new[] { "Name", "$Node", "Value", "COM" },
@@ -450,7 +426,7 @@ public class BuildMap : MonoBehaviour
                 musicVolAttribute.Value = MusicVolume;
             }
         }
-        else UnityEngine.Debug.LogWarning("No music name specified.");
+        else Debug.LogWarning("No music name specified.");
 
 
         //set player, hunter properties
@@ -509,7 +485,7 @@ public class BuildMap : MonoBehaviour
                                 else
                                 {
                                     playerskin.Value = "1";
-                                    UnityEngine.Debug.LogWarning("Player skin isn't specified, setting to default..");
+                                    Debug.LogWarning("Player skin isn't specified, setting to default..");
                                 }
                                 modelNode.Attributes.Append(playerskin);
 
@@ -529,7 +505,7 @@ public class BuildMap : MonoBehaviour
                                 modelNode.Attributes["AI"].Value = Hunter.hunterAIType.ToString();
 
                                 //huntericon
-                                if (Hunter.hunterIcon == true)
+                                if (Hunter.hunterIcon)
                                 {
                                     modelNode.Attributes["Icon"].Value = "1";
                                 }
@@ -548,13 +524,13 @@ public class BuildMap : MonoBehaviour
                                 else
                                 {
                                     hunterskin.Value = "hunter";
-                                    UnityEngine.Debug.LogWarning("Hunter skin isn't specified, setting to default..");
+                                    Debug.LogWarning("Hunter skin isn't specified, setting to default..");
                                 }
                                 modelNode.Attributes.Append(hunterskin);
 
                                 //trick
 
-                                if (Hunter.hunterTrickAllowed == true) //check if hunter is allowed to do trick
+                                if (Hunter.hunterTrickAllowed) //check if hunter is allowed to do trick
                                 {
                                     XmlAttribute hunterTrick = xml.CreateAttribute("Trick");
                                     hunterTrick.Value = "1";
@@ -573,7 +549,7 @@ public class BuildMap : MonoBehaviour
     {
         //Debug in log every backdrop it writes
         if (debugObjectWriting)
-            UnityEngine.Debug.Log("Writing object : " + Regex.Replace(bdInScene.name, @" \((.*?)\)", string.Empty));
+            Debug.Log("Writing object : " + Regex.Replace(bdInScene.name, @" \((.*?)\)", string.Empty));
 
         // Check if the GameObject has a SpriteRenderer component
         SpriteRenderer spriteRenderer = bdInScene.GetComponent<SpriteRenderer>();
@@ -622,7 +598,7 @@ public class BuildMap : MonoBehaviour
     {
         //Debug in log every images it write
         if (debugObjectWriting)
-            UnityEngine.Debug.Log("Writing object : " + Regex.Replace(imageInScene.name, @" \((.*?)\)", string.Empty));
+            Debug.Log("Writing object : " + Regex.Replace(imageInScene.name, @" \((.*?)\)", string.Empty));
 
         if (imageInScene.name != "Camera")
         {
@@ -648,61 +624,56 @@ public class BuildMap : MonoBehaviour
                 // Set the Native resolution of sprite
                 ielement.SetAttribute("NativeX", width.ToString()); //Native Resolution of the Image in X
                 ielement.SetAttribute("NativeY", height.ToString()); //Native Resolution of the Image in Y
+
+                // Check the rotation
+                if (Mathf.Abs(imageInScene.transform.eulerAngles.z) > Mathf.Epsilon)
+                {
+                    // Convert the rotation to the Marmalade transformation matrix
+                    float A, B, C, D, Tx, Ty;
+                    ConvertToMarmaladeMatrix(imageInScene, width * scale.x, height * scale.y, out A, out B, out C, out D, out Tx, out Ty);
+
+                    XmlElement matrixElement = xml.CreateElement("Matrix");
+                    matrixElement.SetAttribute("A", A.ToString());
+                    matrixElement.SetAttribute("B", B.ToString());
+                    matrixElement.SetAttribute("C", C.ToString());
+                    matrixElement.SetAttribute("D", D.ToString());
+                    matrixElement.SetAttribute("Tx", Tx.ToString());
+                    matrixElement.SetAttribute("Ty", Ty.ToString());
+
+                    XmlElement propertiesElement = xml.CreateElement("Properties");
+                    XmlElement staticElement = xml.CreateElement("Static");
+                    staticElement.AppendChild(matrixElement);
+                    propertiesElement.AppendChild(staticElement);
+                    ielement.AppendChild(propertiesElement);
+                }
             }
 
-            // create a new node
-            XmlElement propertiesElement = xml.CreateElement("Properties");
-            XmlElement staticElement = xml.CreateElement("Static");
-            XmlElement matrixElement = xml.CreateElement("Matrix");
-
-            // Check if the sprite image is flipped x,y or both
-            if (spriteRenderer.flipX || spriteRenderer.flipY || (spriteRenderer.flipX && spriteRenderer.flipY))
-            {
-                Bounds bounds = spriteRenderer.sprite.bounds;// Get the bounds of the sprite
-                Vector3 scale = imageInScene.transform.localScale; // Get the GameObject scale
-
-                float width = bounds.size.x * 100 * scale.x;
-                float height = bounds.size.y * 100 * scale.y;
-                float negative_width = width * -1;
-                float negative_height = height * -1;
-
-                // matrix, "A" represents X axis, while "D" represents the Y axis.
-                if (spriteRenderer.flipX && spriteRenderer.flipY)
-                {
-                    matrixElement.SetAttribute("A", negative_width.ToString());
-                    matrixElement.SetAttribute("B", "0");
-                    matrixElement.SetAttribute("C", "0");
-                    matrixElement.SetAttribute("D", negative_height.ToString());
-                    matrixElement.SetAttribute("Tx", "0");
-                    matrixElement.SetAttribute("Ty", "0");
-                }
-                else if (spriteRenderer.flipX)
-                {
-                    matrixElement.SetAttribute("A", negative_width.ToString());
-                    matrixElement.SetAttribute("B", "0");
-                    matrixElement.SetAttribute("C", "0");
-                    matrixElement.SetAttribute("D", height.ToString());
-                    matrixElement.SetAttribute("Tx", width.ToString());
-                    matrixElement.SetAttribute("Ty", "0");
-                }
-                else if (spriteRenderer.flipY)
-                {
-                    matrixElement.SetAttribute("A", width.ToString());
-                    matrixElement.SetAttribute("B", "0");
-                    matrixElement.SetAttribute("C", "0");
-                    matrixElement.SetAttribute("D", negative_height.ToString());
-                    matrixElement.SetAttribute("Tx", "0");
-                    matrixElement.SetAttribute("Ty", negative_height.ToString());
-                }
-                
-                //writes everything under the image node
-                staticElement.AppendChild(matrixElement);
-                propertiesElement.AppendChild(staticElement);
-                ielement.AppendChild(propertiesElement);
-            }
             node.FirstChild.AppendChild(ielement); //Place it into the Object node
             xml.Save(Application.dataPath + "/XML/dzip/level_xml/" + mapToOverride + ".xml"); //Apply the modification to the build-map.xml file}
         }
+    }
+
+    private void ConvertToMarmaladeMatrix(GameObject obj, float width, float height, out float A, out float B, out float C, out float D, out float Tx, out float Ty)
+    {
+        // Get the rotation in degree
+        Vector3 rotation = obj.transform.eulerAngles;
+
+        // Convert to radians
+        float thetaZ = rotation.z * Mathf.Deg2Rad;
+
+        // Calculate the matrix elements
+        float cosZ = Mathf.Cos(thetaZ);
+        float sinZ = Mathf.Sin(thetaZ);
+
+        // Rotation around Z-axis only
+        A = cosZ * width;
+        B = -sinZ * width;
+        C = sinZ * height;
+        D = cosZ * height;
+
+        // Tx and Ty are 0 if no rotation
+        Tx = 0;
+        Ty = 0;
     }
 
     void ConvertToModel(XmlNode node, XmlDocument xml, GameObject modelInScene)
@@ -731,7 +702,7 @@ public class BuildMap : MonoBehaviour
     {
         //Debug in log every object it writes
         if (debugObjectWriting)
-            UnityEngine.Debug.Log("Writing object : " + Regex.Replace(objectInScene.name, @" \((.*?)\)", string.Empty));
+            Debug.Log("Writing object : " + Regex.Replace(objectInScene.name, @" \((.*?)\)", string.Empty));
 
         if (objectInScene.name != "Camera")
         {
@@ -759,7 +730,7 @@ public class BuildMap : MonoBehaviour
     {
         //Debug in log every platform it writes
         if (debugObjectWriting)
-            UnityEngine.Debug.Log("Writing object : " + Regex.Replace(platformInScene.name, @" \((.*?)\)", string.Empty));
+            Debug.Log("Writing object : " + Regex.Replace(platformInScene.name, @" \((.*?)\)", string.Empty));
 
         if (platformInScene.name != "trapezoid_type2" && platformInScene.name != "trapezoid_type1") // Use a texture called "collision" which should come with this buildmap update folder.
         {
@@ -820,7 +791,7 @@ public class BuildMap : MonoBehaviour
     {
         //Debug in log every trigger it writes
         if (debugObjectWriting)
-            UnityEngine.Debug.Log("Writing object : " + Regex.Replace(triggerInScene.name, @" \((.*?)\)", string.Empty));
+            Debug.Log("Writing object : " + Regex.Replace(triggerInScene.name, @" \((.*?)\)", string.Empty));
 
         if (triggerInScene.name != "Camera")
         {
@@ -925,7 +896,7 @@ public class BuildMap : MonoBehaviour
     {
         //Debug in log every Area it writes
         if (debugObjectWriting)
-            UnityEngine.Debug.Log("Writing object : " + Regex.Replace(areaInScene.name, @" \((.*?)\)", string.Empty));
+            Debug.Log("Writing object : " + Regex.Replace(areaInScene.name, @" \((.*?)\)", string.Empty));
 
         if (areaInScene.name != "Camera")
         {
@@ -967,7 +938,7 @@ public class BuildMap : MonoBehaviour
 
         // Debug in log every Area it writes
         if (debugObjectWriting)
-            UnityEngine.Debug.Log("Writing object : " + Regex.Replace(camInScene.name, @" \((.*?)\)", string.Empty));
+            Debug.Log("Writing object : " + Regex.Replace(camInScene.name, @" \((.*?)\)", string.Empty));
 
 
         if (camInScene.name != "Camera") //kinda ironic
@@ -1258,57 +1229,30 @@ public class BuildMap : MonoBehaviour
                     // Set the Native resolution of sprite
                     ielement.SetAttribute("NativeX", width.ToString()); //Native Resolution of the Image in X
                     ielement.SetAttribute("NativeY", height.ToString()); //Native Resolution of the Image in Y
-                }
 
-                // create a new node
-                XmlElement propertiesElementimage = xml.CreateElement("Properties");
-                XmlElement staticElement = xml.CreateElement("Static");
-                XmlElement matrixElement = xml.CreateElement("Matrix");
-
-                // Check if the sprite image is flipped x,y or both
-                if (spriteRenderer.flipX || spriteRenderer.flipY || (spriteRenderer.flipX && spriteRenderer.flipY))
-                {
-                    Bounds bounds = spriteRenderer.sprite.bounds;// Get the bounds of the sprite
-                    Vector3 scale = childObject.transform.localScale; // Get the GameObject scale
-
-                    float width = bounds.size.x * 100 * scale.x;
-                    float height = bounds.size.y * 100 * scale.y;
-                    float negative_width = width * -1;
-                    float negative_height = height * -1;
-
-                    // matrix, "A" represents X axis, while "D" represents the Y axis.
-                    if (spriteRenderer.flipX && spriteRenderer.flipY)
+                    // Check the rotation
+                    if (Mathf.Abs(childObject.transform.eulerAngles.z) > Mathf.Epsilon)
                     {
-                        matrixElement.SetAttribute("A", negative_width.ToString());
-                        matrixElement.SetAttribute("B", "0");
-                        matrixElement.SetAttribute("C", "0");
-                        matrixElement.SetAttribute("D", negative_height.ToString());
-                        matrixElement.SetAttribute("Tx", "0");
-                        matrixElement.SetAttribute("Ty", "0");
-                    }
-                    else if (spriteRenderer.flipX)
-                    {
-                        matrixElement.SetAttribute("A", negative_width.ToString());
-                        matrixElement.SetAttribute("B", "0");
-                        matrixElement.SetAttribute("C", "0");
-                        matrixElement.SetAttribute("D", height.ToString());
-                        matrixElement.SetAttribute("Tx", "0");
-                        matrixElement.SetAttribute("Ty", "0");
-                    }
-                    else if (spriteRenderer.flipY)
-                    {
-                        matrixElement.SetAttribute("A", width.ToString());
-                        matrixElement.SetAttribute("B", "0");
-                        matrixElement.SetAttribute("C", "0");
-                        matrixElement.SetAttribute("D", negative_height.ToString());
-                        matrixElement.SetAttribute("Tx", "0");
-                        matrixElement.SetAttribute("Ty", "0");
+                        // Convert the rotation to the Marmalade transformation matrix
+                        float A, B, C, D, Tx, Ty;
+                        ConvertToMarmaladeMatrix(childObject.gameObject, width * scale.x, height * scale.y, out A, out B, out C, out D, out Tx, out Ty);
+
+                        XmlElement matrixElement = xml.CreateElement("Matrix");
+                        matrixElement.SetAttribute("A", A.ToString());
+                        matrixElement.SetAttribute("B", B.ToString());
+                        matrixElement.SetAttribute("C", C.ToString());
+                        matrixElement.SetAttribute("D", D.ToString());
+                        matrixElement.SetAttribute("Tx", Tx.ToString());
+                        matrixElement.SetAttribute("Ty", Ty.ToString());
+
+                        XmlElement propertiesElement1 = xml.CreateElement("Properties");
+                        XmlElement staticElement = xml.CreateElement("Static");
+                        staticElement.AppendChild(matrixElement);
+                        propertiesElement1.AppendChild(staticElement);
+                        ielement.AppendChild(propertiesElement1);
                     }
 
-                    //writes everything under the image node
-                    staticElement.AppendChild(matrixElement);
-                    propertiesElementimage.AppendChild(staticElement);
-                    ielement.AppendChild(propertiesElement);
+
                 }
                 contentElement.AppendChild(ielement);
             }
@@ -1437,7 +1381,7 @@ public class BuildMap : MonoBehaviour
                     setVariable3.SetAttribute("Value", "COM");
                     initElement.AppendChild(setVariable3);
 
-                    if (dynamicTrigger.PlaySound == true)
+                    if (dynamicTrigger.PlaySound)
                     {
                         XmlElement setVariable4 = xml.CreateElement("SetVariable");
                         setVariable4.SetAttribute("Name", "Sound");
@@ -1479,7 +1423,7 @@ public class BuildMap : MonoBehaviour
                     transformElement.SetAttribute("Name", dynamicTrigger.TriggerTransformName);
                     actionsElement.AppendChild(transformElement);
 
-                    if (dynamicTrigger.PlaySound == true)
+                    if (dynamicTrigger.PlaySound)
                     {
                         // Create Actionsblock sound
                         XmlElement actionBlockSoundElement = xml.CreateElement("ActionBlock");
@@ -1625,7 +1569,7 @@ public class BuildMap : MonoBehaviour
         {
             if (!process.HasExited)
             {
-                UnityEngine.Debug.LogWarning("Vector.exe is still open !! Closing it... (be careful next time)");
+                Debug.LogWarning("Vector.exe is still open !! Closing it... (be careful next time)");
                 process.Kill();
                 process.WaitForExit();
             }
@@ -1654,17 +1598,17 @@ public class BuildMap : MonoBehaviour
                 }
                 else
                 {
-                    UnityEngine.Debug.LogError("level_xml.dz was not found !! Check if your Vector path is correct");
+                    Debug.LogError("level_xml.dz was not found !! Check if your Vector path is correct");
                 }
             }
             else
             {
-                UnityEngine.Debug.LogError("dzip.exe did not exit properly.");
+                Debug.LogError("dzip.exe did not exit properly.");
             }
         }
         else
         {
-            UnityEngine.Debug.LogError("Failed to start dzip.exe");
+            Debug.LogError("Failed to start dzip.exe");
         }
     }
 
