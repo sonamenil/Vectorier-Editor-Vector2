@@ -3,6 +3,7 @@ using System.Diagnostics;
 using UnityEditor;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
+
 namespace DefaultNamespace
 {
     public class LaunchGame : MonoBehaviour
@@ -27,9 +28,14 @@ namespace DefaultNamespace
         private static void RunGame()
         {
 
-            if (!shouldLaunchGame)
-                return;
+
             var gameExecutablePath = VectorierSettings.GameExecutablePath ?? SteamRunGamePath;
+
+            if (string.IsNullOrEmpty(gameExecutablePath))
+            {
+                Debug.LogWarning("Game executable path is not set! Please set it in the Project setting.");
+                return;
+            }
 
             try
             {
@@ -38,11 +44,17 @@ namespace DefaultNamespace
                     StartInfo =
                     {
                         FileName = gameExecutablePath
-                    }
+                    },
+                    EnableRaisingEvents = true
+                };
+
+                gameProcess.Exited += (sender, args) =>
+                {
+                    Debug.Log("Game exited.");
+                    shouldLaunchGame = false; // Reset flag after the game exits
                 };
 
                 gameProcess.Start();
-                gameProcess.WaitForExit();
             }
             catch (Win32Exception) // This exception is thrown when the game executable is not found.
             {
@@ -56,10 +68,11 @@ namespace DefaultNamespace
         public static void BuildAndRun()
         {
             shouldLaunchGame = true;
+            BuildMap.IsBuildForRunGame = true; // Set the flag before building
             BuildMap.Build();
 
-
-
         }
+
+
     }
 }

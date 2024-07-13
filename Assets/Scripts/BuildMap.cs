@@ -13,7 +13,18 @@ using Debug = UnityEngine.Debug;
 public class BuildMap : MonoBehaviour
 {
 
-    public string vectorFilePath;
+    // ReSharper disable once InconsistentNaming
+    internal string vectorFilePath { get; set; }
+
+    void Awake()
+    {
+        vectorFilePath = VectorierSettings.GameDirectory;
+    }
+
+    public static event Action MapBuilt;
+
+    // Flag to indicate if the build is for running the game
+    public static bool IsBuildForRunGame { get; set; } = false;
 
     // Level Settings
     [Header("Level Settings")]
@@ -78,7 +89,7 @@ public class BuildMap : MonoBehaviour
     public bool debugObjectWriting;
     public bool hunterPlaced;
 
-    public static event Action MapBuilt;
+
 
 
     [MenuItem("Vectorier/BuildMap %#&B")]
@@ -103,7 +114,7 @@ public class BuildMap : MonoBehaviour
         //Open the object.xml
         XmlDocument xml = new XmlDocument();
         xml.Load(Application.dataPath + "/XML/build-map.xml");
-        
+
         //Search for the selected object in the object.xml
         foreach (XmlNode node in xml.DocumentElement.SelectSingleNode("/Root/Track"))
         {
@@ -222,6 +233,13 @@ public class BuildMap : MonoBehaviour
         buildMap.StartDzip();
         buildMap.hunterPlaced = false;
         Debug.Log("Building done !");
+
+        // If the build was for running the game, invoke the MapBuilt event
+        if (IsBuildForRunGame)
+        {
+            MapBuilt?.Invoke();
+            IsBuildForRunGame = false; // Reset the flag after the build
+        }
     }
 
     void ConvertToTopImage(XmlNode node, XmlDocument xml, GameObject frontimageInScene)
@@ -253,7 +271,7 @@ public class BuildMap : MonoBehaviour
                 ielement.SetAttribute("NativeY", height.ToString()); //Native Resolution of the Image in Y
             }
 
-            
+
             node.FirstChild.AppendChild(ielement); //Place it into the Object node
             xml.Save(Application.dataPath + "/XML/dzip/level_xml/" + mapToOverride + ".xml"); //Apply the modification to the build-map.xml file}
         }
@@ -385,7 +403,7 @@ public class BuildMap : MonoBehaviour
 
                 node.FirstChild.AppendChild(spawnElement); //Place it into the Object node
             }
-            
+
         }
 
         xml.Save(Application.dataPath + "/XML/dzip/level_xml/" + mapToOverride + ".xml"); //Apply the modification to the build-map.xml file}
@@ -543,7 +561,7 @@ public class BuildMap : MonoBehaviour
             }
         }
     }
-       
+
 
     void ConvertToBackdrop(XmlNode node, XmlDocument xml, GameObject bdInScene)
     {
@@ -1528,7 +1546,7 @@ public class BuildMap : MonoBehaviour
                         xml.Save(writer);
                     }
                 }
-                
+
             }
             else if (childObject.gameObject.CompareTag("Model"))
             {
@@ -1560,9 +1578,14 @@ public class BuildMap : MonoBehaviour
     }
 
 
+
+
+
+
+
+
     void StartDzip()
     {
-
         // Check if Vector.exe is running - if yes, close it
         Process[] processes = Process.GetProcessesByName("Vector");
         foreach (Process process in processes)
@@ -1575,13 +1598,30 @@ public class BuildMap : MonoBehaviour
             }
         }
 
+        // Determine which dzip process logic to use based on the IsBuildForRunGame flag
+        if (BuildMap.IsBuildForRunGame)
+        {
+            StartDzipForRunGame();
+        }
+        else
+        {
+            StartDzipDefault();
+        }
+    }
+
+
+
+    // Logic when IsBuildForRunGame is false
+    void StartDzipDefault()
+    {
         // Start compressing levels into level_xml.dz
         Process dzipProcess = Process.Start(Application.dataPath + "/XML/dzip/dzip.exe", Application.dataPath + "/XML/dzip/config-map.dcl");
+
         if (dzipProcess != null)
         {
             dzipProcess.WaitForExit();
 
-            //check if the process has exited properly
+            // Check if the process has exited properly
             if (dzipProcess.HasExited)
             {
                 // Move level_xml.dz if Vector path is found
@@ -1612,4 +1652,60 @@ public class BuildMap : MonoBehaviour
         }
     }
 
+    // Logic when IsBuildForRunGame is true
+    void StartDzipForRunGame()
+    {
+        // Start compressing levels into level_xml.dz
+        Process dzipProcess = new Process
+        {
+            StartInfo =
+        {
+            FileName = Application.dataPath + "/XML/dzip/dzip.exe",
+            Arguments = Application.dataPath + "/XML/dzip/config-map.dcl"
+        },
+            EnableRaisingEvents = true
+        };
+
+        dzipProcess.Exited += (sender, args) =>
+        {
+            MapBuilt?.Invoke();
+            BuildMap.IsBuildForRunGame = false; // Reset flag after building
+        };
+
+        dzipProcess.Start();
+
+        if (dzipProcess != null)
+        {
+            dzipProcess.WaitForExit();
+
+            // Check if the process has exited properly
+            if (dzipProcess.HasExited)
+            {
+                // Move level_xml.dz if Vector path is found
+                string sourceFilePath = Application.dataPath + "/XML/dzip/level_xml.dz";
+                string destinationFilePath = Path.Combine(vectorFilePath, "level_xml.dz");
+
+                if (File.Exists(sourceFilePath))
+                {
+                    if (File.Exists(destinationFilePath))
+                    {
+                        File.Delete(destinationFilePath);
+                    }
+                    File.Copy(sourceFilePath, destinationFilePath);
+                }
+                else
+                {
+                    Debug.LogError("level_xml.dz was not found !! Check if your Vector path is correct");
+                }
+            }
+            else
+            {
+                Debug.LogError("dzip.exe did not exit properly.");
+            }
+        }
+        else
+        {
+            Debug.LogError("Failed to start dzip.exe");
+        }
+    }
 }
