@@ -1,3 +1,9 @@
+# ⚠ **THIS REPOSITORY IS NO LONGER MAINTAINED!** ⚠
+### ✔ **This project is now maintained on [this repository](https://github.com/FlipThoseTitle/Vectorier-Unity-Editor) if you are searching for an up-to-date version.**
+### ▶ https://github.com/FlipThoseTitle/Vectorier-Unity-Editor
+
+#
+#
 # Vectorier Unity Editor
 Vectorier-Unity-Editor is an level editor for the game Vector using the Unity Engine.
 
