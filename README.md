@@ -3,7 +3,7 @@ Vectorier-Unity-Editor is an level editor for the game Vector using the Unity En
 
 A Discord server is open for the project : https://discord.com/invite/pVRuFBVwC2
 
-# Feature
+# Features
  * Object importer
  * Level importer
  * Level edition
@@ -29,6 +29,13 @@ A Discord server is open for the project : https://discord.com/invite/pVRuFBVwC2
     * Then go to *Vectorier* > *Render object sequence*
     
  - **If you want to build a map :**
-    * In the inspector, enter your file path in the "Vector File Path" textbox to the Vector directory (where the executable game is)
+    * In the project settings, head to the Vectorier tab and enter your file path in the "Game Directory" box to the Vector's directory (where the executable game is located)
+    * Additonally, you can also make a game shortcut, and then enter your file path in the "Game Executable Path" to the shortcut. (eg. C:\Program Files (x86)\Steam\steamapps\common\Vector\Vector.exe - Shortcut)
     * Modify the preference to your likings.
     * Then go to *Vectorier* > *BuildMap*
+
+# Packages
+These are the quality of life tool included to make mapping more easier.
+ * Life Easer 1.4 from Thelastcube
+ * Cutscene Pack
+ * Movement Visualizer and reversed version from kubinka0505
