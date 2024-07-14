@@ -1,0 +1,195 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5495828294652611366
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5538116842339280865}
+  - component: {fileID: 7802931604407772199}
+  m_Layer: 0
+  m_Name: illustration
+  m_TagString: EditorOnly
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5538116842339280865
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5495828294652611366}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 5.46, y: -1.83, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 3918334389938304222}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &7802931604407772199
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5495828294652611366}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_Sprite: {fileID: 21300000, guid: 23e000e49c2d75e469742bfedc5366b5, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 1
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 1.53, y: 1.7}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
+--- !u!1 &8190198583310783917
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3918334389938304222}
+  m_Layer: 0
+  m_Name: HunterAim
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3918334389938304222
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8190198583310783917}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 3892186114519393465}
+  - {fileID: 5538116842339280865}
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &2671100813462425548
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 3918334389938304222}
+    m_Modifications:
+    - target: {fileID: 1374295732266052468, guid: a0cffffd72f3d7d40b56750dc843e2c4, type: 3}
+      propertyPath: Content
+      value: "           <Init>\n              <SetVariable Name=\"$Active\" Value=\"1\"/>\n             
+        <SetVariable Name=\"$AI\" Value=\"1\"/>\n              <SetVariable Name=\"$Node\"
+        Value=\"COM\"/>\n              <SetVariable Name=\"AnimName\" Value=\"ArrestFront\"/>\n             
+        <SetVariable Name=\"AnimFrame\" Value=\"42\"/>\n              <SetVariable
+        Name=\"Reversed\" Value=\"0\"/>\n            \t<SetVariable Name=\"Flag1\"
+        Value=\"0\"/>\n            </Init>\n            <Template Name=\"ForcedAnimation\"/>"
+      objectReference: {fileID: 0}
+    - target: {fileID: 1374295732266052469, guid: a0cffffd72f3d7d40b56750dc843e2c4, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1374295732266052469, guid: a0cffffd72f3d7d40b56750dc843e2c4, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.1388619
+      objectReference: {fileID: 0}
+    - target: {fileID: 1374295732266052469, guid: a0cffffd72f3d7d40b56750dc843e2c4, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2.6554964
+      objectReference: {fileID: 0}
+    - target: {fileID: 1374295732266052469, guid: a0cffffd72f3d7d40b56750dc843e2c4, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 3.5779817
+      objectReference: {fileID: 0}
+    - target: {fileID: 1374295732266052469, guid: a0cffffd72f3d7d40b56750dc843e2c4, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.0997
+      objectReference: {fileID: 0}
+    - target: {fileID: 1374295732266052469, guid: a0cffffd72f3d7d40b56750dc843e2c4, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1374295732266052469, guid: a0cffffd72f3d7d40b56750dc843e2c4, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1374295732266052469, guid: a0cffffd72f3d7d40b56750dc843e2c4, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1374295732266052469, guid: a0cffffd72f3d7d40b56750dc843e2c4, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1374295732266052469, guid: a0cffffd72f3d7d40b56750dc843e2c4, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1374295732266052469, guid: a0cffffd72f3d7d40b56750dc843e2c4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1374295732266052469, guid: a0cffffd72f3d7d40b56750dc843e2c4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1374295732266052469, guid: a0cffffd72f3d7d40b56750dc843e2c4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1374295732266052470, guid: a0cffffd72f3d7d40b56750dc843e2c4, type: 3}
+      propertyPath: m_Name
+      value: TriggerAim
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: a0cffffd72f3d7d40b56750dc843e2c4, type: 3}
+--- !u!4 &3892186114519393465 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1374295732266052469, guid: a0cffffd72f3d7d40b56750dc843e2c4, type: 3}
+  m_PrefabInstance: {fileID: 2671100813462425548}
+  m_PrefabAsset: {fileID: 0}

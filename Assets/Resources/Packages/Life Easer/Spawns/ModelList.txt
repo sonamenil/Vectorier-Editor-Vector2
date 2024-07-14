@@ -1,0 +1,28 @@
+Right-Click "ModelList.txt" file and press "Open on explorer" 
+to copy this.
+
+before the list, be aware that if you
+want to make these models spawn when map starts
+you need to add 
+BirthSpawn="spawn object spawn name"  somewhere on it
+(remove it if you don't.)
+
+if you want to spawn it with a trigger or make it 
+respawn on a specific spawn object, there's a Tutorial video on "tutorials" folder.
+
+Warning: you still need to change the following properties:
+"AI" (already explained) 
+"Respawns" (idk what is this sincerely)
+"AllowedSpawns"(spawn name of a spawn object)
+"time" (delay before spawn happens)
+
+Model List:
+
+Helper:
+<Model Name="Helper" Type="0" Color="0" AI="A number between 1-10" Time="0" Respawns="idk what is this, just put "player" here" Skins="helper|shirt|cap" AllowedSpawns="a custom spawnname" LifeTime="5" GeneratesBuildings="COM"/>
+
+Revolution Girl:
+<Model Name="RevolutionGirl" Type="0" Color="0" AllowedSpawns="a custom spawnname" AI="A number between 1-10" Skins="revolution_girl"/>
+
+Hunter 2:
+<Model Name="H2" Type="0" Color="0" AI="A number between 1-10" Time="0.8" AllowedSpawns="a custom spawnname" Skins="hunter" Murders="Player|Helper" Arrests="Player|Helper" Icon="1"/>
