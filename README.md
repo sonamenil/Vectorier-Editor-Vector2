@@ -30,7 +30,7 @@ A Discord server is open for the project : https://discord.com/invite/pVRuFBVwC2
     
  - **If you want to build a map :**
     * In the project settings, head to the Vectorier tab and enter your file path in the "Game Directory" box to the Vector's directory (where the executable game is located)
-    * Additonally, you can also make a game shortcut, and then enter your file path in the "Game Executable Path" to the shortcut. (eg. C:\Program Files (x86)\Steam\steamapps\common\Vector\Vector.exe - Shortcut)
+    * Addtionally for non-steam version, you can also make a game shortcut, and then enter your file path in the "Game Executable Path" to the shortcut. (eg. C:\Program Files (x86)\Steam\steamapps\common\Vector\Vector.exe - Shortcut)
     * Modify the preference to your likings.
     * Then go to *Vectorier* > *BuildMap*
 
