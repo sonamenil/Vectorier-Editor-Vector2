@@ -10,8 +10,6 @@ namespace DefaultNamespace
     {
         private const string SteamRunGamePath = "steam://rungameid/248970";
 
-        // This prevents the game from running after just building the map.
-        private static bool shouldLaunchGame;
 
         static LaunchGame()
         {
@@ -51,7 +49,6 @@ namespace DefaultNamespace
                 gameProcess.Exited += (sender, args) =>
                 {
                     Debug.Log("Game exited.");
-                    shouldLaunchGame = false; // Reset flag after the game exits
                 };
 
                 gameProcess.Start();
@@ -67,7 +64,6 @@ namespace DefaultNamespace
         [MenuItem("Vectorier/Launch/Build and Run Game %#&R")]
         public static void BuildAndRun()
         {
-            shouldLaunchGame = true;
             BuildMap.IsBuildForRunGame = true; // Set the flag before building
             BuildMap.Build();
 

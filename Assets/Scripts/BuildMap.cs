@@ -644,7 +644,7 @@ public class BuildMap : MonoBehaviour
                 ielement.SetAttribute("NativeY", height.ToString()); //Native Resolution of the Image in Y
 
                 // Check the rotation
-                if (Mathf.Abs(imageInScene.transform.eulerAngles.z) > Mathf.Epsilon)
+                if (Mathf.Abs(imageInScene.transform.eulerAngles.z) > Mathf.Epsilon || spriteRenderer.flipX || spriteRenderer.flipY)
                 {
                     // Convert the rotation to the Marmalade transformation matrix
                     float A, B, C, D, Tx, Ty;
@@ -683,11 +683,18 @@ public class BuildMap : MonoBehaviour
         float cosZ = Mathf.Cos(thetaZ);
         float sinZ = Mathf.Sin(thetaZ);
 
-        // Rotation around Z-axis only
-        A = cosZ * width;
-        B = -sinZ * width;
-        C = sinZ * height;
-        D = cosZ * height;
+        // spriteRenderer component
+        SpriteRenderer spriteRenderer = obj.GetComponent<SpriteRenderer>();
+
+        // apply flipping
+        float flipX = (spriteRenderer != null && spriteRenderer.flipX) ? -1.0f : 1.0f;
+        float flipY = (spriteRenderer != null && spriteRenderer.flipY) ? -1.0f : 1.0f;
+
+        // calculation
+        A = cosZ * width * flipX;
+        B = -sinZ * width * flipX;
+        C = sinZ * height * flipY;
+        D = cosZ * height * flipY;
 
         // Tx and Ty are 0 if no rotation
         Tx = 0;
@@ -1249,7 +1256,7 @@ public class BuildMap : MonoBehaviour
                     ielement.SetAttribute("NativeY", height.ToString()); //Native Resolution of the Image in Y
 
                     // Check the rotation
-                    if (Mathf.Abs(childObject.transform.eulerAngles.z) > Mathf.Epsilon)
+                    if (Mathf.Abs(childObject.transform.eulerAngles.z) > Mathf.Epsilon || spriteRenderer.flipX || spriteRenderer.flipY)
                     {
                         // Convert the rotation to the Marmalade transformation matrix
                         float A, B, C, D, Tx, Ty;
