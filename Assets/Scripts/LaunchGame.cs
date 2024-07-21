@@ -1,8 +1,12 @@
-﻿using System.ComponentModel;
+﻿using System.IO;
+using System.ComponentModel;
 using System.Diagnostics;
 using UnityEditor;
 using UnityEngine;
+
 using Debug = UnityEngine.Debug;
+
+// -=-=-=- //
 
 namespace DefaultNamespace
 {
@@ -10,12 +14,10 @@ namespace DefaultNamespace
     {
         private const string SteamRunGamePath = "steam://rungameid/248970";
 
-
         static LaunchGame()
         {
             BuildMap.MapBuilt += OnMapBuilt;
         }
-
 
         private static void OnMapBuilt()
         {
@@ -25,9 +27,7 @@ namespace DefaultNamespace
         [MenuItem("Vectorier/Launch/Run Game %#R")]
         private static void RunGame()
         {
-
-
-            var gameExecutablePath = VectorierSettings.GameExecutablePath ?? SteamRunGamePath;
+            var gameExecutablePath = Path.Combine(VectorierSettings.GameDirectory, "Vector.exe") ?? SteamRunGamePath;
 
             if (string.IsNullOrEmpty(gameExecutablePath))
             {
@@ -39,36 +39,32 @@ namespace DefaultNamespace
             {
                 var gameProcess = new Process
                 {
-                    StartInfo =
-                    {
+                    StartInfo = {
                         FileName = gameExecutablePath
                     },
                     EnableRaisingEvents = true
                 };
 
-                gameProcess.Exited += (sender, args) =>
-                {
+                gameProcess.Exited += (sender, args) => {
                     Debug.Log("Game exited.");
                 };
 
                 gameProcess.Start();
             }
-            catch (Win32Exception) // This exception is thrown when the game executable is not found.
+            catch (Win32Exception)
             {
-                Debug.LogError($"Cannot find game executable at path: {VectorierSettings.GameDirectory}!");
+                // This exception is thrown when the game executable is not found.
+                Debug.LogError($"Cannot run the game from path: \"{VectorierSettings.GameDirectory}!\"");
             }
         }
-
-
 
         [MenuItem("Vectorier/Launch/Build and Run Game %#&R")]
         public static void BuildAndRun()
         {
-            BuildMap.IsBuildForRunGame = true; // Set the flag before building
+            // Set the flag before building
+            BuildMap.IsBuildForRunGame = true;
+
             BuildMap.Build();
-
         }
-
-
     }
 }
