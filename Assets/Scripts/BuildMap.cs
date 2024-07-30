@@ -4,11 +4,14 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml;
+using System.Globalization;
 using UnityEditor;
-using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Debug = UnityEngine.Debug;
+
+
+// -=-=-=- //
 
 public class BuildMap : MonoBehaviour
 {
@@ -26,18 +29,31 @@ public class BuildMap : MonoBehaviour
     // Flag to indicate if the build is for running the game
     public static bool IsBuildForRunGame { get; set; } = false;
 
+
+
+    // -=-=-=- //
+
+
     // Level Settings
     [Header("Level Settings")]
+
     [Tooltip("Level that will get overridden.")]
     public string mapToOverride = "DOWNTOWN_STORY_02";
 
     [Tooltip("Music that will be played on the level.")]
     public string levelMusic = "music_dinamic";
 
-    [Tooltip("Volume of the music.")] public string MusicVolume = "0.3";
-    [Tooltip("Background Image")] public string customBackground = "v_bg";
-    [Tooltip("Background Width")] public string bg_Width = "2121";
-    [Tooltip("Background Height")] public string bg_Height = "1116";
+    [Tooltip("Volume of the music.")]
+    public string MusicVolume = "0.3";
+
+    [Tooltip("Background Image")]
+    public string customBackground = "v_bg";
+
+    [Tooltip("Background Width")]
+    public string bg_Width = "2121";
+
+    [Tooltip("Background Height")]
+    public string bg_Height = "1116";
 
     // Gameplay
     [Serializable]
@@ -56,12 +72,15 @@ public class BuildMap : MonoBehaviour
     public class HunterSettings
     {
         public string hunterModelName = "Hunter";
-        [Tooltip("Hunter's Spawn Name")] public string hunterSpawnName = "DefaultSpawn";
+
+        [Tooltip("Hunter's Spawn Name")]
+        public string hunterSpawnName = "DefaultSpawn";
 
         [Tooltip("Time it takes for the hunter to spawn in.")]
         public float hunterSpawnTime;
 
-        [Tooltip("Hunter Respawn Name")] public string hunterAllowedSpawn = "Respawn";
+        [Tooltip("Hunter Respawn Name")]
+        public string hunterAllowedSpawn = "Respawn";
 
         [Tooltip("Hunter Appearance (Default: hunter)")]
         public string hunterSkin = "hunter";
@@ -69,19 +88,50 @@ public class BuildMap : MonoBehaviour
         [Tooltip("Hunter is able do to tricks")]
         public bool hunterTrickAllowed;
 
-        [Tooltip("Shows hunter icon or not")] public bool hunterIcon = true;
-        [Tooltip("Ai Number (Default: 1)")] public int hunterAIType = 1;
+        [Tooltip("Shows hunter icon or not")]
+        public bool hunterIcon = true;
+
+        [Tooltip("Ai Number (Default: 1)")]
+        public int hunterAIType = 1;
     }
+
     [Header("Gameplay")]
-    [SerializeField] private PlayerSettings Player;
-    [SerializeField] private HunterSettings Hunter;
+    [SerializeField]
+    private PlayerSettings Player;
+
+    [SerializeField]
+    private HunterSettings Hunter;
 
     [Tooltip("Uses custom properties instead of prefixed (Will ignore the settings for player and hunter above.)")]
     public bool useCustomProperties;
 
     [TextArea(5, 20)]
-    public string CustomModelProperties = @"<Model Name=""Player"" Type=""1"" Color=""0"" BirthSpawn=""PlayerSpawn"" AI=""0"" Time=""0"" Respawns=""Hunter"" ForceBlasts=""Hunter"" Trick=""1"" Item=""1"" Victory=""1"" Lose=""1""/>
-    <Model Name=""Hunter"" Type=""0"" Color=""0"" BirthSpawn=""DefaultSpawn"" AI=""1"" Time=""0.8"" AllowedSpawns=""Respawn"" Skins=""hunter"" Murders=""Player"" Arrests=""Player"" Icon=""1""/>";
+    public string CustomModelProperties = @"<Model Name=""Player""
+		Type=""1""
+		Color=""0""
+		BirthSpawn=""PlayerSpawn""
+		AI=""0""
+		Time=""0""
+		Respawns=""Hunter""
+		ForceBlasts=""Hunter""
+		Trick=""1""
+		Item=""1""
+		Victory=""1""
+		Lose=""1""
+	/>
+
+	<Model Name=""Hunter""
+		Type=""0""
+		Color=""0""
+		BirthSpawn=""DefaultSpawn""
+		AI=""1""
+		Time=""0.8""
+		AllowedSpawns=""Respawn""
+		Skins=""hunter""
+		Murders=""Player""
+		Arrests=""Player""
+		Icon=""1""
+	/>";
 
 
     // Miscellaneous
@@ -90,22 +140,43 @@ public class BuildMap : MonoBehaviour
     public bool hunterPlaced;
 
 
+    // -=-=-=- //
 
 
-    [MenuItem("Vectorier/BuildMap %#&B")]
-    public static void Build()
+    [MenuItem("Vectorier/BuildMap")]
+    public static void BuildDZ() { Build(true, true); }
+
+    [MenuItem("Vectorier/BuildMap (Fast) #&B")]
+    public static void BuildZlib() { Build(false, true); }
+
+    [MenuItem("Vectorier/BuildMap Xml Only")]
+    public static void BuildXml() { Build(false, false); }
+
+
+    // -=-=-=- //
+
+
+    public static void Build(bool useDZ, bool compileMap)
     {
-        //This is used to cache the BuildMap component. This is done to avoid the FindObjectOfType method in loop and other places. This is a slow operation.
+        // This is used to cache the BuildMap component. This is done to avoid the FindObjectOfType method in loop and other places.
+        // This is a slow operation.
         var buildMap = FindObjectOfType<BuildMap>();
+
 #if UNITY_EDITOR
         UnityEditor.SceneManagement.EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
 #endif
+
         if (string.IsNullOrEmpty(buildMap.vectorFilePath))
         {
             buildMap.vectorFilePath = VectorierSettings.GameDirectory;
         }
         Debug.Log("Building...");
 
+        // Start the stopwatch
+        Stopwatch stopwatch = new Stopwatch();
+        stopwatch.Start();
+
+        // -=-=-=- //
 
         //Erase last build
         File.Delete(Application.dataPath + "/XML/build-map.xml");
@@ -121,7 +192,8 @@ public class BuildMap : MonoBehaviour
             if (node.Attributes.GetNamedItem("Factor").Value == "1")
             {
 
-                buildMap.SetLevelProperties(xml, node); //Set the properties into the level
+                //Set the properties into the level
+                buildMap.SetLevelProperties(xml, node);
 
                 // Get all GameObjects with tag "Image", then arrange them based on sorting order
                 GameObject[] imagesInScene = GameObject.FindGameObjectsWithTag("Image")
@@ -134,6 +206,7 @@ public class BuildMap : MonoBehaviour
                     buildMap.ConvertToSpawn(node, xml, spawnInScene);
                 }
 
+                // Image
                 foreach (GameObject imageInScene in imagesInScene)
                 {
                     UnityEngine.Transform parent = imageInScene.transform.parent;
@@ -146,6 +219,7 @@ public class BuildMap : MonoBehaviour
                     buildMap.ConvertToImage(node, xml, imageInScene);
                 }
 
+                // Object
                 foreach (GameObject objectInScene in GameObject.FindGameObjectsWithTag("Object"))
                 {
                     UnityEngine.Transform parent = objectInScene.transform.parent;
@@ -158,6 +232,7 @@ public class BuildMap : MonoBehaviour
                     buildMap.ConvertToObject(node, xml, objectInScene);
                 }
 
+                // Platforms
                 foreach (GameObject platformInScene in GameObject.FindGameObjectsWithTag("Platform"))
                 {
                     UnityEngine.Transform parent = platformInScene.transform.parent;
@@ -169,6 +244,7 @@ public class BuildMap : MonoBehaviour
                     buildMap.ConvertToPlatform(node, xml, platformInScene);
                 }
 
+                // Trigger
                 foreach (GameObject triggerInScene in GameObject.FindGameObjectsWithTag("Trigger"))
                 {
                     UnityEngine.Transform parent = triggerInScene.transform.parent;
@@ -180,6 +256,7 @@ public class BuildMap : MonoBehaviour
                     buildMap.ConvertToTrigger(node, xml, triggerInScene);
                 }
 
+                // Area
                 foreach (GameObject areaInScene in GameObject.FindGameObjectsWithTag("Area"))
                 {
                     UnityEngine.Transform parent = areaInScene.transform.parent;
@@ -191,6 +268,7 @@ public class BuildMap : MonoBehaviour
                     buildMap.ConvertToArea(node, xml, areaInScene);
                 }
 
+                // Model
                 foreach (GameObject modelInScene in GameObject.FindGameObjectsWithTag("Model"))
                 {
                     UnityEngine.Transform parent = modelInScene.transform.parent;
@@ -201,17 +279,23 @@ public class BuildMap : MonoBehaviour
                     }
                     buildMap.ConvertToModel(node, xml, modelInScene);
                 }
+
+                // Camera
                 foreach (GameObject camInScene in GameObject.FindGameObjectsWithTag("Camera"))
                 {
-                    buildMap.ConvertToCamera(node, xml, camInScene); //Note: This is actually a trigger, but with camera zoom properties
+                    //Note: This is actually a trigger, but with camera zoom properties
+                    buildMap.ConvertToCamera(node, xml, camInScene);
                 }
 
+                // Dynamic
                 foreach (GameObject dynamicInScene in GameObject.FindGameObjectsWithTag("Dynamic"))
                 {
                     UnityEngine.Transform dynamicInSceneTransform = dynamicInScene.transform;
                     buildMap.ConvertToDynamic(node, xml, dynamicInScene, dynamicInSceneTransform);
                 }
             }
+
+            // Backdrop
             if (node.Attributes.GetNamedItem("Factor").Value == "0.5")
             {
                 //Write every GameObject with tag "Backdrop" in the build-map.xml
@@ -230,17 +314,131 @@ public class BuildMap : MonoBehaviour
         }
 
         // vv  Build level directly into Vector (sweet !)  vv
-        buildMap.StartDzip();
-        buildMap.hunterPlaced = false;
-        Debug.Log("Building done !");
+        if (compileMap)
+        {
+            buildMap.StartDzip(useDZ);
+            buildMap.hunterPlaced = false;
+        }
+        
+
+        // Show Stopwatch
+        stopwatch.Stop();
+        TimeSpan ts = stopwatch.Elapsed;
+        string formattedTime = ts.TotalSeconds.ToString("F3", CultureInfo.InvariantCulture);
+
+        Debug.Log($"Building done! ({formattedTime} seconds)");
+
+        // -=-=-=- //
+
 
         // If the build was for running the game, invoke the MapBuilt event
         if (IsBuildForRunGame)
         {
             MapBuilt?.Invoke();
-            IsBuildForRunGame = false; // Reset the flag after the build
+
+            // Reset the flag after the build
+            IsBuildForRunGame = false;
         }
     }
+
+    void StartDzip(bool useDZ)
+    {
+        // Check if Vector.exe is running - if yes, close it
+        Process[] processes = Process.GetProcessesByName("Vector");
+        foreach (Process process in processes)
+        {
+            if (!process.HasExited)
+            {
+                Debug.LogWarning("Closing Vector (be careful next time)");
+
+                process.Kill();
+                process.WaitForExit();
+            }
+        }
+
+        // Start compressing levels into level_xml.dz
+        string batchFileName = useDZ ? "compile-map.bat" : "compile-map-optimized.bat";
+        string batchFilePath = Path.Combine(Application.dataPath, "XML/dzip", batchFileName);
+        string batchDirectory = Path.GetDirectoryName(batchFilePath);
+
+        if (!File.Exists(batchFilePath))
+        {
+            Debug.LogError($"Batch file not found: {batchFilePath}");
+            return;
+        }
+
+        Process batchProcess = new Process
+        {
+            StartInfo = {
+        FileName = batchFilePath,
+        UseShellExecute = false,
+        RedirectStandardOutput = true,
+        RedirectStandardError = true,
+        CreateNoWindow = true,
+        WorkingDirectory = batchDirectory // Set working directory
+    }
+        };
+
+        // Start the process
+        try
+        {
+            batchProcess.Start();
+
+            // Wait for the process to exit
+            batchProcess.WaitForExit();
+
+            // Check exit code if necessary
+            if (batchProcess.ExitCode != 0)
+            {
+                string errorOutput = batchProcess.StandardError.ReadToEnd();
+                Debug.LogError($"dzip.exe encountered an error: {errorOutput}");
+            }
+            else
+            {
+                // Move the file if the process succeeded
+                string sourceFilePath = Path.Combine(Application.dataPath, "XML/dzip/level_xml.dz");
+                string destinationFilePath = Path.Combine(vectorFilePath, "level_xml.dz");
+
+                if (File.Exists(sourceFilePath))
+                {
+                    if (File.Exists(destinationFilePath))
+                    {
+                        File.Delete(destinationFilePath);
+                    }
+
+                    File.Copy(sourceFilePath, destinationFilePath);
+                }
+                else
+                {
+                    Debug.LogError("level_xml.dz was not found! Check if your Vector path is correct");
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Failed to start dzip.exe: {e.Message}");
+        }
+        finally
+        {
+            // Ensure to close the process resources
+            batchProcess.Close();
+        }
+
+        // Trigger the event if the build was intended for running the game
+        if (IsBuildForRunGame)
+        {
+            MapBuilt?.Invoke();
+
+            // Reset flag after building
+            IsBuildForRunGame = false;
+        }
+    }
+
+
+
+    // -=-=-=-=-=- //
+
+
 
     void ConvertToTopImage(XmlNode node, XmlDocument xml, GameObject frontimageInScene)
     {
@@ -251,7 +449,9 @@ public class BuildMap : MonoBehaviour
             ielement.SetAttribute("X", (frontimageInScene.transform.position.x * 100).ToString().Replace(',', '.')); //Add X position (Refit into the Vector units)
             ielement.SetAttribute("Y", (-frontimageInScene.transform.position.y * 100).ToString().Replace(',', '.')); // Add Y position (Negative because Vector see the world upside down)
             ielement.SetAttribute("ClassName", Regex.Replace(frontimageInScene.name, @" \((.*?)\)", string.Empty)); //Add a name
+
             SpriteRenderer spriteRenderer = frontimageInScene.GetComponent<SpriteRenderer>();
+
             if (spriteRenderer != null && spriteRenderer.sprite != null) //Get the Image Size in Width and Height
             {
 
@@ -315,7 +515,7 @@ public class BuildMap : MonoBehaviour
                 }
             }
 
-            //trigger element
+            //Trigger element
             XmlElement triggerElement = xml.CreateElement("Trigger");
             triggerElement.SetAttribute("Name", RespawnComponent.TriggerName);
             triggerElement.SetAttribute("X", (spawnInScene.transform.position.x * 100).ToString().Replace(',', '.')); //Add X position (Refit into the Vector units)
@@ -338,7 +538,7 @@ public class BuildMap : MonoBehaviour
                 triggerElement.SetAttribute("Height", (height * scale.y).ToString()); //Height of the Image
             }
 
-            // create the properties element and its child static element
+            // Create the properties element and its child static element
             XmlElement propertiesElement = xml.CreateElement("Properties");
             XmlElement staticElement = xml.CreateElement("Static");
             XmlElement selectionElement = xml.CreateElement("Selection");
@@ -411,10 +611,11 @@ public class BuildMap : MonoBehaviour
 
     void SetLevelProperties(XmlDocument xml, XmlNode objectNode)
     {
-        GameObject[] allObj = FindObjectsOfType<GameObject>(); //find all object
+        // Find all object
+        GameObject[] allObj = FindObjectsOfType<GameObject>();
         XmlNode rootNode = xml.DocumentElement.SelectSingleNode("/Root");
 
-        //set the background
+        // Set the background
         XmlNode objNode = xml.SelectSingleNode("/Root/Track/Object[@Factor='0.05']");
         if (objNode != null)
         {
@@ -432,7 +633,7 @@ public class BuildMap : MonoBehaviour
         }
 
 
-        //set the music
+        // Set the music
         if (levelMusic != null)
         {
             XmlNode musicNode = xml.DocumentElement.SelectSingleNode("/Root/Music");
@@ -447,7 +648,7 @@ public class BuildMap : MonoBehaviour
         else Debug.LogWarning("No music name specified.");
 
 
-        //set player, hunter properties
+        // Set player, hunter properties
         foreach (GameObject allObjects in allObj) //loop to see if the object has buildmap component under it
         {
             BuildMap buildMap = allObjects.GetComponent<BuildMap>();
@@ -1017,18 +1218,18 @@ public class BuildMap : MonoBehaviour
 
     void ConvertToDynamic(XmlNode node, XmlDocument xml, GameObject dynamicInScene, UnityEngine.Transform dynamicInSceneTransform)
     {
+        // Dynamic component in the hierachy
+        Dynamic dynamicComponent = dynamicInScene.GetComponent<Dynamic>();
 
-        Dynamic dynamicComponent = dynamicInScene.GetComponent<Dynamic>(); //dynamic component in the hierachy
-
-        //object
+        // Object
         XmlElement objectElement = xml.CreateElement("Object");
         objectElement.SetAttribute("X", "0");
         objectElement.SetAttribute("Y", "0");
 
-        // properties
+        // Properties
         XmlElement propertiesElement = xml.CreateElement("Properties");
 
-        //dynamic
+        // Dynamic
         XmlElement dynamicElement = xml.CreateElement("Dynamic");
 
         // Create Transformation element
@@ -1576,7 +1777,7 @@ public class BuildMap : MonoBehaviour
                 }
             }
 
-            //add content to the object
+            // Add content to the object
             objectElement.AppendChild(contentElement);
         }
 
@@ -1584,135 +1785,4 @@ public class BuildMap : MonoBehaviour
         xml.Save(Application.dataPath + "/XML/dzip/level_xml/" + mapToOverride + ".xml"); //Apply the modification to the build-map.xml file}
     }
 
-
-
-
-
-
-
-
-    void StartDzip()
-    {
-        // Check if Vector.exe is running - if yes, close it
-        Process[] processes = Process.GetProcessesByName("Vector");
-        foreach (Process process in processes)
-        {
-            if (!process.HasExited)
-            {
-                Debug.LogWarning("Vector.exe is still open !! Closing it... (be careful next time)");
-                process.Kill();
-                process.WaitForExit();
-            }
-        }
-
-        // Determine which dzip process logic to use based on the IsBuildForRunGame flag
-        if (BuildMap.IsBuildForRunGame)
-        {
-            StartDzipForRunGame();
-        }
-        else
-        {
-            StartDzipDefault();
-        }
-    }
-
-
-
-    // Logic when IsBuildForRunGame is false
-    void StartDzipDefault()
-    {
-        // Start compressing levels into level_xml.dz
-        Process dzipProcess = Process.Start(Application.dataPath + "/XML/dzip/dzip.exe", Application.dataPath + "/XML/dzip/config-map.dcl");
-
-        if (dzipProcess != null)
-        {
-            dzipProcess.WaitForExit();
-
-            // Check if the process has exited properly
-            if (dzipProcess.HasExited)
-            {
-                // Move level_xml.dz if Vector path is found
-                string sourceFilePath = Application.dataPath + "/XML/dzip/level_xml.dz";
-                string destinationFilePath = Path.Combine(vectorFilePath, "level_xml.dz");
-
-                if (File.Exists(sourceFilePath))
-                {
-                    if (File.Exists(destinationFilePath))
-                    {
-                        File.Delete(destinationFilePath);
-                    }
-                    File.Copy(sourceFilePath, destinationFilePath);
-                }
-                else
-                {
-                    Debug.LogError("level_xml.dz was not found !! Check if your Vector path is correct");
-                }
-            }
-            else
-            {
-                Debug.LogError("dzip.exe did not exit properly.");
-            }
-        }
-        else
-        {
-            Debug.LogError("Failed to start dzip.exe");
-        }
-    }
-
-    // Logic when IsBuildForRunGame is true
-    void StartDzipForRunGame()
-    {
-        // Start compressing levels into level_xml.dz
-        Process dzipProcess = new Process
-        {
-            StartInfo =
-        {
-            FileName = Application.dataPath + "/XML/dzip/dzip.exe",
-            Arguments = Application.dataPath + "/XML/dzip/config-map.dcl"
-        },
-            EnableRaisingEvents = true
-        };
-
-        dzipProcess.Exited += (sender, args) =>
-        {
-            MapBuilt?.Invoke();
-            BuildMap.IsBuildForRunGame = false; // Reset flag after building
-        };
-
-        dzipProcess.Start();
-
-        if (dzipProcess != null)
-        {
-            dzipProcess.WaitForExit();
-
-            // Check if the process has exited properly
-            if (dzipProcess.HasExited)
-            {
-                // Move level_xml.dz if Vector path is found
-                string sourceFilePath = Application.dataPath + "/XML/dzip/level_xml.dz";
-                string destinationFilePath = Path.Combine(vectorFilePath, "level_xml.dz");
-
-                if (File.Exists(sourceFilePath))
-                {
-                    if (File.Exists(destinationFilePath))
-                    {
-                        File.Delete(destinationFilePath);
-                    }
-                    File.Copy(sourceFilePath, destinationFilePath);
-                }
-                else
-                {
-                    Debug.LogError("level_xml.dz was not found !! Check if your Vector path is correct");
-                }
-            }
-            else
-            {
-                Debug.LogError("dzip.exe did not exit properly.");
-            }
-        }
-        else
-        {
-            Debug.LogError("Failed to start dzip.exe");
-        }
-    }
 }

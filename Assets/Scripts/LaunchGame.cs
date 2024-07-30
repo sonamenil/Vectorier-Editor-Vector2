@@ -1,8 +1,8 @@
-﻿using System.IO;
-using System.ComponentModel;
-using System.Diagnostics;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
+using System.IO;
+using System.Diagnostics;
+using System.ComponentModel;
 
 using Debug = UnityEngine.Debug;
 
@@ -58,13 +58,13 @@ namespace DefaultNamespace
             }
         }
 
-        [MenuItem("Vectorier/Launch/Build and Run Game %#&R")]
+        [MenuItem("Vectorier/Launch/Build and Run Game (Fast) %#&R")]
         public static void BuildAndRun()
         {
             // Set the flag before building
             BuildMap.IsBuildForRunGame = true;
 
-            BuildMap.Build();
+            BuildMap.Build(false, true);
         }
     }
 }
