@@ -32,10 +32,13 @@ A Discord server is open for the project : https://discord.com/invite/pVRuFBVwC2
     * In the project settings, head to the Vectorier tab and enter your file path in the "Game Directory" box to the Vector's directory (where the executable game is located)
     * Addtionally for non-steam version, you can also make a game shortcut, and then enter your file path in the "Game Executable Path" to the shortcut. (eg. C:\Program Files (x86)\Steam\steamapps\common\Vector\Vector.exe - Shortcut)
     * Modify the preference to your likings.
-    * Then go to *Vectorier* > *BuildMap*
+    - There's different method of Building your Map.
+      * BuildMap - Slow, Small File Size
+      * BuildMap (Fast) - Fast, Big File Size
+      * BuildMap XML Only
 
 # Packages
 These are the quality of life tool included to make mapping more easier.
- * Life Easer 1.4 from Thelastcube
+ * Life Easer 1.5 from Thelastcube
  * Cutscene Pack
  * Movement Visualizer and reversed version from kubinka0505
