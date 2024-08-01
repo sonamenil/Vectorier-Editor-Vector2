@@ -27,14 +27,22 @@ namespace DefaultNamespace
         [MenuItem("Vectorier/Launch/Run Game %#R")]
         private static void RunGame()
         {
-            var gameExecutablePath = Path.Combine(VectorierSettings.GameDirectory, "Vector.exe") ?? SteamRunGamePath;
+            string gameExecutablePath;
+
+            if (VectorierSettings.UseShortcutLaunch)
+            {
+                gameExecutablePath = VectorierSettings.GameShortcutPath ?? SteamRunGamePath;
+            }
+            else
+            {
+                gameExecutablePath = Path.Combine(VectorierSettings.GameDirectory, "Vector.exe") ?? SteamRunGamePath;
+            }
 
             if (string.IsNullOrEmpty(gameExecutablePath))
             {
                 Debug.LogWarning("Game executable path is not set! Please set it in the Project setting.");
                 return;
             }
-
             try
             {
                 var gameProcess = new Process
@@ -53,9 +61,9 @@ namespace DefaultNamespace
             }
             catch (Win32Exception)
             {
-                // This exception is thrown when the game executable is not found.
-                Debug.LogError($"Cannot run the game from path: \"{VectorierSettings.GameDirectory}!\"");
+                Debug.LogError($"Cannot run the game from path: \"{gameExecutablePath}!\"");
             }
+
         }
 
         [MenuItem("Vectorier/Launch/Build and Run Game (Fast) %#&R")]
@@ -63,8 +71,8 @@ namespace DefaultNamespace
         {
             // Set the flag before building
             BuildMap.IsBuildForRunGame = true;
-
             BuildMap.Build(false, true);
+            RunGame();
         }
     }
 }

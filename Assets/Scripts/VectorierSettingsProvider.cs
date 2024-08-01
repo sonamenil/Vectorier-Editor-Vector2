@@ -9,9 +9,11 @@ using UnityEngine.UIElements;
 
 public class VectorierSettingsProvider : SettingsProvider
 {
+    private bool useShortcutLaunch;
+
     public VectorierSettingsProvider(string path, SettingsScope scopes, IEnumerable<string>? keywords = null) : base(path, scopes, keywords)
     {
-        // pass
+        useShortcutLaunch = EditorPrefs.GetBool(VectorierSettings.UseShortcutLaunchKey, false);
     }
 
     public override void OnActivate(string searchContext, VisualElement rootElement)
@@ -29,10 +31,21 @@ public class VectorierSettingsProvider : SettingsProvider
         });
 
         var gameDirectory = VectorierSettings.GameDirectory;
-        MakeTextField(ref gameDirectory, "Game directory", "Game location directory / Steam URL");
+        MakeTextField(ref gameDirectory, "Game Directory", "Game location directory / Steam URL");
+
+        EditorGUILayout.Space(5F);
+
+        var gameShortcutPath = VectorierSettings.GameShortcutPath;
+        MakeTextField(ref gameShortcutPath, "Game Shortcut Path", "Game shortcut location directory (Vector.exe - Shortcut)");
+
+        EditorGUILayout.Space(5F);
+
+        useShortcutLaunch = MakeToggle(useShortcutLaunch, "Use Shortcut Launch", "Launch the game using shortcut");
 
         EditorGUILayout.EndVertical();
         EditorPrefs.SetString(VectorierSettings.GameDirectoryKey, gameDirectory);
+        EditorPrefs.SetString(VectorierSettings.GameShortcutKey, gameShortcutPath);
+        EditorPrefs.SetBool(VectorierSettings.UseShortcutLaunchKey, useShortcutLaunch);
     }
 
     private void MakeTextField(ref string? value, string textFieldlabel, string tooltip)
@@ -40,6 +53,12 @@ public class VectorierSettingsProvider : SettingsProvider
         value ??= "";
         var guiContent = new GUIContent(textFieldlabel, tooltip);
         value = EditorGUILayout.TextField(guiContent, value);
+    }
+
+    private bool MakeToggle(bool value, string toggleLabel, string tooltip)
+    {
+        var guiContent = new GUIContent(toggleLabel, tooltip);
+        return EditorGUILayout.Toggle(guiContent, value);
     }
 
     [SettingsProvider]
