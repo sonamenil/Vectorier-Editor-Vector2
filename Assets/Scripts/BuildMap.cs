@@ -293,6 +293,18 @@ public class BuildMap : MonoBehaviour
                     UnityEngine.Transform dynamicInSceneTransform = dynamicInScene.transform;
                     buildMap.ConvertToDynamic(node, xml, dynamicInScene, dynamicInSceneTransform);
                 }
+
+                // Animation
+                foreach (GameObject animationInScene in GameObject.FindGameObjectsWithTag("Animation"))
+                {
+                    UnityEngine.Transform parent = animationInScene.transform.parent;
+                    if (parent != null && parent.CompareTag("Dynamic"))
+                    {
+                        // If the parent has the tag "Dynamic" skip this GameObject and continue.
+                        continue;
+                    }
+                    buildMap.ConvertToAnimation(node, xml, animationInScene);
+                }
             }
 
             // Backdrop
@@ -437,6 +449,45 @@ public class BuildMap : MonoBehaviour
 
 
     // -=-=-=-=-=- //
+
+    void ConvertToAnimation(XmlNode node, XmlDocument xml, GameObject animationInScene)
+    {
+        AnimationProperties AnimationComponent = animationInScene.GetComponent<AnimationProperties>(); // Animation Properties Component
+
+        if (animationInScene.name != "Camera")
+        {
+            XmlElement animationElement = xml.CreateElement("Animation"); //Create a new node from scratch
+            animationElement.SetAttribute("X", (animationInScene.transform.position.x * 100).ToString().Replace(',', '.')); //Add X position (Refit into the Vector units)
+            animationElement.SetAttribute("Y", (-animationInScene.transform.position.y * 100).ToString().Replace(',', '.')); // Add Y position (Negative because Vector see the world upside down)
+            animationElement.SetAttribute("Width", AnimationComponent.Width); //Add a Width
+            animationElement.SetAttribute("Height", AnimationComponent.Height); //Add a Height
+            animationElement.SetAttribute("Type", AnimationComponent.Type); //Type (default: 1)
+
+
+            if (!string.IsNullOrEmpty(AnimationComponent.Direction))
+            {
+                animationElement.SetAttribute("Direction", AnimationComponent.Direction); //Direction (ex: Direction="10|-1.5")
+            }
+
+            if (!string.IsNullOrEmpty(AnimationComponent.Acceleration))
+            {
+                animationElement.SetAttribute("Acceleration", AnimationComponent.Acceleration); //Acceleration (ex: Acceleration="0.02|-0.1")
+            }
+
+
+            animationElement.SetAttribute("ScaleX", AnimationComponent.ScaleX); //Add a ScaleX
+            animationElement.SetAttribute("ScaleY", AnimationComponent.ScaleY); //Add a ScaleY
+
+            if (!string.IsNullOrEmpty(AnimationComponent.Time))
+            {
+                animationElement.SetAttribute("Time", AnimationComponent.Time); //Add a Time
+            }
+
+            animationElement.SetAttribute("ClassName", Regex.Replace(animationInScene.name, @" \((.*?)\)", string.Empty)); //Add a name
+            node.FirstChild.AppendChild(animationElement); //Place it into the Object node
+            xml.Save(Application.dataPath + "/XML/dzip/level_xml/" + mapToOverride + ".xml"); //Apply the modification to the build-map.xml file}
+        }
+    }
 
 
 

@@ -7,7 +7,7 @@ using Vector3 = UnityEngine.Vector3;
 
 public class BinDecompile : MonoBehaviour
 {
-    [MenuItem("Vectorier/Bin/Bin Decompile")]
+    [MenuItem("Vectorier/Miscellaneous/Bin/Bin Decompile")]
     public static void BinDecompileMenu()
     {
         // Show file selection dialog

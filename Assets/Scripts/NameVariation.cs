@@ -6,7 +6,7 @@ public class NameVariation : MonoBehaviour
 {
     public string nameString = ""; // string to be add behind the name of each files
 
-    [MenuItem("Vectorier/Batch Rename")]
+    [MenuItem("Vectorier/Miscellaneous/Batch Rename")]
     static void RenameFiles()
     {
         string folderPath = EditorUtility.OpenFolderPanel("Select Folder", "", ""); //folder path

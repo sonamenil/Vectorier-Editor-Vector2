@@ -17,7 +17,7 @@ public class BindecReader : EditorWindow
         "DetectorH", "DetectorV", "COM", "Camera"
     };
 
-    [MenuItem("Vectorier/Bin/Bindec Read")]
+    [MenuItem("Vectorier/Miscellaneous/Bin/Bindec Read")]
     public static void ShowWindow()
     {
         GetWindow<BindecReader>("Bindec Reader");
