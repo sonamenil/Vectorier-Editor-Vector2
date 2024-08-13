@@ -5,26 +5,31 @@ using UnityEditor;
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 
-public class BinCompile : MonoBehaviour
+public class BinCompileBatch : MonoBehaviour
 {
-    [MenuItem("Vectorier/Miscellaneous/Bin/Bin Compile")]
+    [MenuItem("Vectorier/Miscellaneous/Bin/Bin Compile Batch")]
     public static void BinCompileMenu()
     {
-        // Show file selection dialog
-        string filePath = EditorUtility.OpenFilePanel("Select .bindec file", "", "bindec");
+        // Show folder selection dialog
+        string folderPath = EditorUtility.OpenFolderPanel("Select folder containing .bindec files", "", "");
 
-        if (!string.IsNullOrEmpty(filePath))
+        if (!string.IsNullOrEmpty(folderPath))
         {
-            try
+            string[] filePaths = Directory.GetFiles(folderPath, "*.bindec");
+
+            foreach (string filePath in filePaths)
             {
-                CompileBinFile(filePath);
-                EditorUtility.DisplayDialog("Success", "Binary file compiled successfully.", "OK");
+                try
+                {
+                    CompileBinFile(filePath);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError("Error compiling file: " + ex.Message);
+                }
             }
-            catch (Exception ex)
-            {
-                Debug.LogError("Error compiling file: " + ex.Message);
-                EditorUtility.DisplayDialog("Error", "Error compiling file: " + ex.Message, "OK");
-            }
+
+            EditorUtility.DisplayDialog("Success", "Binary files compiled successfully.", "OK");
         }
     }
 
@@ -97,3 +102,4 @@ public class BinCompile : MonoBehaviour
         Debug.Log("Binary file compiled to: " + outputFilePath);
     }
 }
+

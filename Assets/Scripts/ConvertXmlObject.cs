@@ -16,129 +16,162 @@ public class ConvertXmlObject : MonoBehaviour
     {
         Debug.Log("Converting...");
 
-        //Load all object XMLs
+        string path = EditorUtility.OpenFilePanel("Select XML File", Application.dataPath, "xml");
+        if (string.IsNullOrEmpty(path))
+        {
+            Debug.LogError("No XML file selected!");
+            return;
+        }
+
+        // Load the selected XML file
         XmlDocument obj = new XmlDocument();
-        obj.Load(Application.dataPath + "/XML/objects.xml");
+        obj.Load(path);
+
         bool objectFound = false;
         int doc_num = 0;
 
-        //Search for the selected object in the object XMLs
-        while (objectFound == false & doc_num < 3) 
+        // Search for the selected object in the object XMLs
+        while (!objectFound && doc_num < 3)
         {
-            if (doc_num == 0)
-                obj.Load(Application.dataPath + "/XML/objects.xml");
-            else if (doc_num == 1)
-                obj.Load(Application.dataPath + "/XML/objects_downtown.xml");
-            else if (doc_num == 2)
-                obj.Load(Application.dataPath + "/XML/objects_construction.xml");
             foreach (XmlNode node in obj.DocumentElement.SelectSingleNode("/Root/Objects"))
             {
-                //Check if the object as the correct name
-                if (node.Name == "Object")
-                    if (node.Attributes.GetNamedItem("Name").Value == GameObject.FindObjectOfType<ConvertXmlObject>().objectToConvert)
+                // Check if the object has the correct name
+                if (node.Name == "Object" && node.Attributes.GetNamedItem("Name").Value == GameObject.FindObjectOfType<ConvertXmlObject>().objectToConvert)
+                {
+                    objectFound = true;
+
+                    // Process each node in the object
+                    foreach (XmlNode content in node.FirstChild)
                     {
-                        objectFound = true;
-                        //Search for each node in the object 
-                        foreach (XmlNode content in node.FirstChild)
-                        {
-                            if (content.Name == "Image")
-                                GameObject.FindObjectOfType<ConvertXmlObject>().InstantiateObject(content);
-                            else if (content.Name == "Trigger")
-                                GameObject.FindObjectOfType<ConvertXmlObject>().InstantiateObject(content);
-                            else if (content.Name == "Area")
-                                GameObject.FindObjectOfType<ConvertXmlObject>().InstantiateObject(content);
-                            else if (content.Name == "Object")
-                                GameObject.FindObjectOfType<ConvertXmlObject>().InstantiateObject(content);
-                        }
+                        GameObject.FindObjectOfType<ConvertXmlObject>().InstantiateObject(content);
                     }
+                }
             }
             doc_num += 1;
         }
-        GameObject.FindObjectOfType<ConvertXmlObject>().actualObject = null;
-        Debug.Log("Convert done !");
+
+        if (!objectFound)
+        {
+            Debug.LogError("Object not found in the XML files.");
+        }
+        else
+        {
+            GameObject.FindObjectOfType<ConvertXmlObject>().actualObject = null;
+            Debug.Log("Convert done!");
+        }
     }
 
     void InstantiateObject(XmlNode content)
     {
-        //Debug all content found in the object
-        if (debugObjectFound && content.Name == "Image")
-            Debug.Log("Found Image : " + content.Attributes.GetNamedItem("ClassName").Value);
-        else if (debugObjectFound && content.Name == "Trigger")
-            Debug.Log("Found Trigger : " + content.Attributes.GetNamedItem("Name").Value);
-        else if (debugObjectFound && content.Name == "Area")
-            Debug.Log("Found Trick : " + content.Attributes.GetNamedItem("Name").Value);
-        else if (debugObjectFound && content.Name == "Object")
-            Debug.Log("Found Object : " + content.Attributes.GetNamedItem("Name").Value);
+        if (debugObjectFound)
+        {
+            Debug.Log($"Found {content.Name}: {content.Attributes.GetNamedItem("ClassName").Value}");
+        }
 
-        //Place the image using every information the xml provide (X, Y, Width, Height, ClassName)
         if (actualObject == null)
         {
-            //Create a new GameObject with the selected object
-            actualObject = Instantiate(new GameObject(GameObject.FindObjectOfType<ConvertXmlObject>().objectToConvert), new Vector3(0, 0, 0), Quaternion.identity);
-            DestroyImmediate(GameObject.Find(GameObject.FindObjectOfType<ConvertXmlObject>().objectToConvert)); //Destroy duplicate
-            actualObject.name = GameObject.FindObjectOfType<ConvertXmlObject>().objectToConvert; //Name it correctly
+            actualObject = Instantiate(new GameObject(objectToConvert), Vector3.zero, Quaternion.identity);
+            DestroyImmediate(GameObject.Find(objectToConvert));
+            actualObject.name = objectToConvert;
         }
 
-        // vv  If the content is an image  vv
         if (content.Name == "Image")
         {
+            // Calculate the position
+            Vector3 position = new Vector3(
+                float.Parse(content.Attributes.GetNamedItem("X").Value) / 100,
+                -float.Parse(content.Attributes.GetNamedItem("Y").Value) / 100,
+                0
+            );
+
             lastContent = Instantiate(
-                dummyObject = new GameObject(content.Attributes.GetNamedItem("ClassName").Value), //Usage of ClassName value (To name the new object)
-                new Vector3(float.Parse(content.Attributes.GetNamedItem("X").Value) / 100, -float.Parse(content.Attributes.GetNamedItem("Y").Value) / 100, 0), //Usage of X and Y value (divided by 100 to fit Unity scale)
-                Quaternion.identity);
+                dummyObject = new GameObject(content.Attributes.GetNamedItem("ClassName").Value),
+                position,
+                Quaternion.identity
 
-            lastContent.AddComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Textures/" + content.Attributes.GetNamedItem("ClassName").Value); //REUsage of ClassName value (To place the texture)
+            );
 
-            //Check if the image is rotated (by checking if there is a Matrix node)
+            // Load the sprite and apply
+            SpriteRenderer spriteRenderer = lastContent.AddComponent<SpriteRenderer>();
+            spriteRenderer.sprite = Resources.Load<Sprite>("Textures/" + content.Attributes.GetNamedItem("ClassName").Value);
+
+
+            // Calculate scale based on Width and Height
+            float width = float.Parse(content.Attributes.GetNamedItem("Width").Value);
+            float height = float.Parse(content.Attributes.GetNamedItem("Height").Value);
+
+            float originalWidth = spriteRenderer.sprite.texture.width;
+            float originalHeight = spriteRenderer.sprite.texture.height;
+
+            Vector3 scale = new Vector3(width / originalWidth, height / originalHeight, 1);
+            lastContent.transform.localScale = scale;
+
+            // Check if there is Matrix transformations
             if (content.HasChildNodes)
-                //Get into the Matrix node
-                foreach (XmlNode matrixNode in content.LastChild.FirstChild)
+            {
+                foreach (XmlNode matrixNode in content.SelectNodes("Properties/Static/Matrix"))
                 {
-                    if (matrixNode.Name == "Matrix")
-                    {
-                        //TODO : You can take a look at a more stable way to convert the right rotation
-                        //Set the image rotation to the A value divided by 1.665 (very wonky but kinda work for now)
-                        lastContent.transform.rotation = Quaternion.Euler(0, 0, int.Parse(matrixNode.Attributes.GetNamedItem("A").Value) / 1.665f * 2);
-                        //Recenter the image correctly
-                        lastContent.transform.position = new Vector3
-                        (lastContent.transform.localPosition.x + float.Parse(matrixNode.Attributes.GetNamedItem("Tx").Value) / 100,
-                        lastContent.transform.localPosition.y + -float.Parse(matrixNode.Attributes.GetNamedItem("D").Value) / 100,
-                        0);
-                    }
+
+                    ConvertFromMarmaladeMatrix(matrixNode, lastContent.transform, spriteRenderer, width, height);
+
                 }
+            }
         }
 
-        // vv  If the content is a trigger  vv
-        else if (content.Name == "Trigger")
+        lastContent.transform.parent = actualObject.transform;
+        DestroyImmediate(dummyObject);
+
+    }
+
+    void ConvertFromMarmaladeMatrix(XmlNode matrixNode, UnityEngine.Transform transform, SpriteRenderer spriteRenderer, float xmlWidth, float xmlHeight)
+    {
+        float A = float.Parse(matrixNode.Attributes.GetNamedItem("A").Value);
+        float D = float.Parse(matrixNode.Attributes.GetNamedItem("D").Value);
+
+        // image dimensions
+        float originalWidth = spriteRenderer.sprite.bounds.size.x * 100f;  // adjust width based on the sprite bounds
+        float originalHeight = spriteRenderer.sprite.bounds.size.y * 100f; // adjust height based on the sprite bounds
+
+
+        // Calculate scale
+        float scaleX = A / originalWidth;
+        float scaleY = D / originalHeight;
+
+
+        // Adjust for potential double-scaling due to XML width/height attributes
+        float expectedWidth = Mathf.Abs(scaleX * originalWidth);
+        float expectedHeight = Mathf.Abs(scaleY * originalHeight);
+
+
+        if (Mathf.Abs(expectedWidth - xmlWidth) > Mathf.Epsilon)
         {
-            lastContent = Instantiate(
-            dummyObject = new GameObject(content.Attributes.GetNamedItem("Name").Value), //Usage of Name value (To name the new object)
-            new Vector3(float.Parse(content.Attributes.GetNamedItem("X").Value) / 100, -float.Parse(content.Attributes.GetNamedItem("Y").Value) / 100, 0), //Usage of X and Y value (divided by 100 to fit Unity scale)
-            Quaternion.identity);
-
-            lastContent.AddComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Textures/trigger"); //REUsage of ClassName value (To place the texture)
+            scaleX *= xmlWidth / expectedWidth;
         }
 
-        // vv  If the content is a Trick  vv
-        else if (content.Name == "Area" || content.Name == "Object" && content.OuterXml.Contains("Trigger"))
+        if (Mathf.Abs(expectedHeight - xmlHeight) > Mathf.Epsilon)
         {
-            lastContent = Instantiate(
-            dummyObject = new GameObject(content.Attributes.GetNamedItem("Name").Value), //Usage of Name value (To name the new object)
-            new Vector3(float.Parse(content.Attributes.GetNamedItem("X").Value) / 100, -float.Parse(content.Attributes.GetNamedItem("Y").Value) / 100, 0), //Usage of X and Y value (divided by 100 to fit Unity scale)
-            Quaternion.identity);
-            if (content.Attributes.GetNamedItem("Name").Value.Contains("Trigger") && Resources.Load<Sprite>("Textures/tricks/TRACK_" + content.Attributes.GetNamedItem("ItemName").Value))
-                lastContent.AddComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Textures/tricks/TRACK_" + content.Attributes.GetNamedItem("ItemName").Value); //REUsage of ClassName value (To place the texture)
-            else
-                lastContent.AddComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Textures/trick"); //REUsage of ClassName value (To place the texture)
+            scaleY *= xmlHeight / expectedHeight;
         }
 
-        // vv  Universal action  vv
-        lastContent.GetComponent<SpriteRenderer>().transform.parent = actualObject.transform; //Place the new image into the selected object
-        if (lastContent.GetComponent<SpriteRenderer>().sprite.name.Contains("TRICK"))
-            lastContent.transform.localScale = new Vector3(1, 1, 0);
-        else if (content.Name != "Object")
-            lastContent.transform.localScale = new Vector3(float.Parse(content.Attributes.GetNamedItem("Width").Value) / lastContent.GetComponent<SpriteRenderer>().sprite.texture.width, float.Parse(content.Attributes.GetNamedItem("Height").Value) / lastContent.GetComponent<SpriteRenderer>().sprite.texture.height, 0); //Usage of Width and Height value
-        actualObject.tag = "Object"; //VERY IMPORTANT : Every GameObject with the tag "Object" will be counted in the final build, else ignored.
-        DestroyImmediate(dummyObject); //Remove duplicated content
+        // flipping based on the matrix values
+        bool flipX = scaleX < 0;
+        bool flipY = scaleY < 0;
+
+
+        // correct the scale to positive values (since flip is handled separately)
+        scaleX = Mathf.Abs(scaleX);
+        scaleY = Mathf.Abs(scaleY);
+
+
+        transform.localScale = new Vector3(scaleX, scaleY, 1);
+        spriteRenderer.flipX = flipX;
+        spriteRenderer.flipY = flipY;
+
+
+        // apply translation
+        float Tx = float.Parse(matrixNode.Attributes.GetNamedItem("Tx").Value) / 100;
+        float Ty = -float.Parse(matrixNode.Attributes.GetNamedItem("Ty").Value) / 100;
+        transform.position += new Vector3(Tx, Ty, 0);
     }
 }
+
