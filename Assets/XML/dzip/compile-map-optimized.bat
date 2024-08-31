@@ -1,1 +1,0 @@
-dzip.exe config-map-optimized.dcl
