@@ -30,9 +30,9 @@ Please take them from the textures folder on resources, you can later add z2 tex
 * First off, i recommend having at least a bit of knowledge about the Vector 1 editor, since this one follows its rules.
 
   # Basics
-  The tag in works as the spawn of the level. Create am empty game object, place it where you want and tag it as in
+  The tag "in" works as the spawn of the level. Create am empty game object, place it where you want and tag it as in
   
-  The tag out is what finishes the level. Same method as in object. IT IS OBLIGATORY
+  The tag "out" is what finishes the level. Same method as in object. IT IS OBLIGATORY
 
   you have an example level wich shows basic stuff.
 
