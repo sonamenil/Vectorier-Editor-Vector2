@@ -13,7 +13,7 @@ A Discord server is open for the project : https://discord.com/invite/pVRuFBVwC2
  * Open the project in Unity Hub
 
 # Rooms Folder
-on Project Settings> Editor> Vectorier, you should find a place to put the files where the rooms are located (inside vector 2 is Resources/gamedata/run_data/rooms
+on Edit> Project Settings, you should find a place to put the files where the rooms are located (inside vector 2 is Resources/gamedata/run_data/rooms
 
 * Write the room filename to replace in script manager
 
