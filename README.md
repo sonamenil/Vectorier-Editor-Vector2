@@ -18,6 +18,9 @@ on Project Settings> Editor> Vectorier, you should find a place to put the files
 * Write the room filename to replace in script manager
 
 Fun fact: you can just hit restart when youre in your level after you build, so you dont have to restart your game.
+
+# Warning about textures
+Please take them from the textures folder on resources, you can later add z2 textures
  
 # Tutorials
 
