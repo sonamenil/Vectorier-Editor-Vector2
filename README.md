@@ -63,7 +63,7 @@ Please take them from the textures folder on resources, you can later add z2 tex
    # Dynamic
    Normal dynamic movement works the same as in Vector 1 editor, but the new thing is the size interval.
    On the movement usage you have a new option wich is size interval, that makes the dynamic properties be of size instead of movement.
-   Below theres the matrix properties, wich are automatically set to 0.001 (it make the image look tiny), to make the image look normal, set the size interval to 1, wich will set the matrix to 1.
+   Below theres the matrix properties, wich are automatically set to 0.001 (it make the image look tiny), to make the image look normal, set the size interval to 1000, wich will set the matrix to 1.
 
    For the trigger, you need to make it a separate object (not a child object as usual) and tag it as dynamic trigger, after that it should be like usual.
 

@@ -470,9 +470,35 @@ public class BuildMapVec2 : MonoBehaviour
                     staticElement.AppendChild(matrixElement);
                     propertiesElement.AppendChild(staticElement);
                     ielement.AppendChild(propertiesElement);
+
+                    if (imageInScene.name == "traps_shadows.gradient")
+                    {
+                        XmlElement blendElement = xml.CreateElement("BlendMode");
+                        blendElement.SetAttribute("Mode", "Multiply");
+                        staticElement.AppendChild(blendElement);
+                    }
+                    if (imageInScene.name == "traps_shadows.gradient_rounded")
+                    {
+                        XmlElement blendElement = xml.CreateElement("BlendMode");
+                        blendElement.SetAttribute("Mode", "Multiply");
+                        staticElement.AppendChild(blendElement);
+                    }
+                    if (imageInScene.name == "traps_shadows.gradient_intense")
+                    {
+                        XmlElement blendElement = xml.CreateElement("BlendMode");
+                        blendElement.SetAttribute("Mode", "Multiply");
+                        staticElement.AppendChild(blendElement);
+                    }
+                    if (imageInScene.name == "traps_shadows.gradient_intense_rounded")
+                    {
+                        XmlElement blendElement = xml.CreateElement("BlendMode");
+                        blendElement.SetAttribute("Mode", "Multiply");
+                        staticElement.AppendChild(blendElement);
+                    }
+
                 }
             }
-
+       
            node.AppendChild(ielement); //Place it into the Object node
             xml.Save(Application.dataPath + "/XML/dzip/level_xml/" + mapToOverride + ".xml"); //Apply the modification to the build-map.xml file}
         }
