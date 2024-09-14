@@ -86,157 +86,169 @@ public class BuildMapVec2 : MonoBehaviour
         //Search for the selected object in the object.xml
         foreach (XmlNode node in xml.DocumentElement.SelectSingleNode("/Root/Track"))
         {
-            
 
-                //Set the properties into the level
-                buildMap.SetLevelProperties(xml, node);
 
-                // Get all GameObjects with tag "Image", then arrange them based on sorting order
-                GameObject[] imagesInScene = GameObject.FindGameObjectsWithTag("Image")
-                                            .OrderBy(obj => obj.GetComponent<SpriteRenderer>().sortingOrder)
-                                            .ToArray();
+            //Set the properties into the level
+            buildMap.SetLevelProperties(xml, node);
 
-                //Write every GameObject with tag "Object", "Image", "Platform", "Area" and "Trigger" in the build-map.xml
+            // Get all GameObjects with tag "Image", then arrange them based on sorting order
+            GameObject[] imagesInScene = GameObject.FindGameObjectsWithTag("Image")
+                                        .OrderBy(obj => obj.GetComponent<SpriteRenderer>().sortingOrder)
+                                        .ToArray();
 
-                // Image
-                foreach (GameObject imageInScene in imagesInScene)
+            //Write every GameObject with tag "Object", "Image", "Platform", "Area" and "Trigger" in the build-map.xml
+
+            // Image
+            foreach (GameObject imageInScene in imagesInScene)
+            {
+                UnityEngine.Transform parent = imageInScene.transform.parent;
+                if (parent != null && parent.CompareTag("Dynamic"))
                 {
-                    UnityEngine.Transform parent = imageInScene.transform.parent;
-                    if (parent != null && parent.CompareTag("Dynamic"))
-                    {
-                        // If the parent has the tag "Dynamic" skip this GameObject and continue.
-                        continue;
-                    }
-
-                    buildMap.ConvertToImage(node, xml, imageInScene);
+                    // If the parent has the tag "Dynamic" skip this GameObject and continue.
+                    continue;
                 }
 
+                buildMap.ConvertToImage(node, xml, imageInScene);
+            }
 
-                // Object
-                foreach (GameObject objectInScene in GameObject.FindGameObjectsWithTag("Object"))
+
+            // Object
+            foreach (GameObject objectInScene in GameObject.FindGameObjectsWithTag("Object"))
+            {
+                UnityEngine.Transform parent = objectInScene.transform.parent;
+                if (parent != null && parent.CompareTag("Dynamic"))
                 {
-                    UnityEngine.Transform parent = objectInScene.transform.parent;
-                    if (parent != null && parent.CompareTag("Dynamic"))
-                    {
-                        // If the parent has the tag "Dynamic" skip this GameObject and continue.
-                        continue;
-                    }
-
-                    buildMap.ConvertToObject(node, xml, objectInScene);
+                    // If the parent has the tag "Dynamic" skip this GameObject and continue.
+                    continue;
                 }
 
-                // Animation
-                foreach (GameObject animationInScene in GameObject.FindGameObjectsWithTag("Animation"))
+                buildMap.ConvertToObject(node, xml, objectInScene);
+            }
+
+            // Animation
+            foreach (GameObject animationInScene in GameObject.FindGameObjectsWithTag("Animation"))
+            {
+                UnityEngine.Transform parent = animationInScene.transform.parent;
+                if (parent != null && parent.CompareTag("Dynamic"))
                 {
-                    UnityEngine.Transform parent = animationInScene.transform.parent;
-                    if (parent != null && parent.CompareTag("Dynamic"))
-                    {
-                        // If the parent has the tag "Dynamic" skip this GameObject and continue.
-                        continue;
-                    }
-                    buildMap.ConvertToAnimation(node, xml, animationInScene);
+                    // If the parent has the tag "Dynamic" skip this GameObject and continue.
+                    continue;
                 }
+                buildMap.ConvertToAnimation(node, xml, animationInScene);
+            }
 
-                // Platforms
-                foreach (GameObject platformInScene in GameObject.FindGameObjectsWithTag("Platform"))
+            // Platforms
+            foreach (GameObject platformInScene in GameObject.FindGameObjectsWithTag("Platform"))
+            {
+                UnityEngine.Transform parent = platformInScene.transform.parent;
+                if (parent != null && parent.CompareTag("Dynamic"))
                 {
-                    UnityEngine.Transform parent = platformInScene.transform.parent;
-                    if (parent != null && parent.CompareTag("Dynamic"))
-                    {
-                        // If the parent has the tag "Dynamic" skip this GameObject and continue.
-                        continue;
-                    }
-                    buildMap.ConvertToPlatform(node, xml, platformInScene);
+                    // If the parent has the tag "Dynamic" skip this GameObject and continue.
+                    continue;
                 }
+                buildMap.ConvertToPlatform(node, xml, platformInScene);
+            }
 
-                // Trigger
-                foreach (GameObject triggerInScene in GameObject.FindGameObjectsWithTag("Trigger"))
+            // Trapezoid
+            foreach (GameObject trapezoidInScene in GameObject.FindGameObjectsWithTag("Trapezoid"))
+            {
+                UnityEngine.Transform parent = trapezoidInScene.transform.parent;
+                if (parent != null && parent.CompareTag("Dynamic"))
                 {
-                    UnityEngine.Transform parent = triggerInScene.transform.parent;
-                    if (parent != null && parent.CompareTag("Dynamic"))
-                    {
-                        // If the parent has the tag "Dynamic" skip this GameObject and continue.
-                        continue;
-                    }
-                    buildMap.ConvertToTrigger(node, xml, triggerInScene);
+                    // If the parent has the tag "Dynamic" skip this GameObject and continue.
+                    continue;
                 }
+                buildMap.ConvertToTrapezoid(node, xml, trapezoidInScene);
+            }
 
-                foreach (GameObject triggerInScene in GameObject.FindGameObjectsWithTag("Dynamic Trigger"))
+            // Trigger
+            foreach (GameObject triggerInScene in GameObject.FindGameObjectsWithTag("Trigger"))
+            {
+                UnityEngine.Transform parent = triggerInScene.transform.parent;
+                if (parent != null && parent.CompareTag("Dynamic"))
                 {
-                    UnityEngine.Transform parent = triggerInScene.transform.parent;
-                    if (parent != null && parent.CompareTag("Dynamic"))
-                    {
-                        // If the parent has the tag "Dynamic" skip this GameObject and continue.
-                        continue;
-                    }
-                    buildMap.ConvertToDynamicTrigger(node, xml, triggerInScene);
+                    // If the parent has the tag "Dynamic" skip this GameObject and continue.
+                    continue;
                 }
+                buildMap.ConvertToTrigger(node, xml, triggerInScene);
+            }
 
-                // Area
-                foreach (GameObject areaInScene in GameObject.FindGameObjectsWithTag("Area"))
+            foreach (GameObject triggerInScene in GameObject.FindGameObjectsWithTag("Dynamic Trigger"))
+            {
+                UnityEngine.Transform parent = triggerInScene.transform.parent;
+                if (parent != null && parent.CompareTag("Dynamic"))
                 {
-                    UnityEngine.Transform parent = areaInScene.transform.parent;
-                    if (parent != null && parent.CompareTag("Dynamic"))
-                    {
-                        // If the parent has the tag "Dynamic" skip this GameObject and continue.
-                        continue;
-                    }
-                    buildMap.ConvertToArea(node, xml, areaInScene);
+                    // If the parent has the tag "Dynamic" skip this GameObject and continue.
+                    continue;
                 }
+                buildMap.ConvertToDynamicTrigger(node, xml, triggerInScene);
+            }
 
-
-                // In
-                foreach (GameObject InTagInScene in GameObject.FindGameObjectsWithTag("In"))
+            // Area
+            foreach (GameObject areaInScene in GameObject.FindGameObjectsWithTag("Area"))
+            {
+                UnityEngine.Transform parent = areaInScene.transform.parent;
+                if (parent != null && parent.CompareTag("Dynamic"))
                 {
-                    UnityEngine.Transform parent = InTagInScene.transform.parent;
-                    if (parent != null && parent.CompareTag("Dynamic"))
-                    {
-                        // If the parent has the tag "Dynamic" skip this GameObject and continue.
-                        continue;
-                    }
-                    buildMap.ConvertToIn(node, xml, InTagInScene);
+                    // If the parent has the tag "Dynamic" skip this GameObject and continue.
+                    continue;
                 }
+                buildMap.ConvertToArea(node, xml, areaInScene);
+            }
 
-                // Out
-                foreach (GameObject OutTagInScene in GameObject.FindGameObjectsWithTag("Out"))
+
+            // In
+            foreach (GameObject InTagInScene in GameObject.FindGameObjectsWithTag("In"))
+            {
+                UnityEngine.Transform parent = InTagInScene.transform.parent;
+                if (parent != null && parent.CompareTag("Dynamic"))
                 {
-                    UnityEngine.Transform parent = OutTagInScene.transform.parent;
-                    if (parent != null && parent.CompareTag("Dynamic"))
-                    {
-                        // If the parent has the tag "Dynamic" skip this GameObject and continue.
-                        continue;
-                    }
-                    buildMap.ConvertToOut(node, xml, OutTagInScene);
+                    // If the parent has the tag "Dynamic" skip this GameObject and continue.
+                    continue;
                 }
+                buildMap.ConvertToIn(node, xml, InTagInScene);
+            }
 
-                // Object Reference
-                foreach (GameObject ObjectReferenceTagInScene in GameObject.FindGameObjectsWithTag("Object Reference"))
+            // Out
+            foreach (GameObject OutTagInScene in GameObject.FindGameObjectsWithTag("Out"))
+            {
+                UnityEngine.Transform parent = OutTagInScene.transform.parent;
+                if (parent != null && parent.CompareTag("Dynamic"))
                 {
-                    UnityEngine.Transform parent = ObjectReferenceTagInScene.transform.parent;
-                    if (parent != null && parent.CompareTag("Dynamic"))
-                    {
-                        // If the parent has the tag "Dynamic" skip this GameObject and continue.
-                        continue;
-                    }
-                    buildMap.ConvertToObjectReference(node, xml, ObjectReferenceTagInScene);
+                    // If the parent has the tag "Dynamic" skip this GameObject and continue.
+                    continue;
                 }
+                buildMap.ConvertToOut(node, xml, OutTagInScene);
+            }
 
-                // Camera
-                foreach (GameObject camInScene in GameObject.FindGameObjectsWithTag("Camera"))
+            // Object Reference
+            foreach (GameObject ObjectReferenceTagInScene in GameObject.FindGameObjectsWithTag("Object Reference"))
+            {
+                UnityEngine.Transform parent = ObjectReferenceTagInScene.transform.parent;
+                if (parent != null && parent.CompareTag("Dynamic"))
                 {
-                    //Note: This is actually a trigger, but with camera zoom properties
-                    buildMap.ConvertToCamera(node, xml, camInScene);
+                    // If the parent has the tag "Dynamic" skip this GameObject and continue.
+                    continue;
                 }
+                buildMap.ConvertToObjectReference(node, xml, ObjectReferenceTagInScene);
+            }
 
-                // Dynamic
-                foreach (GameObject dynamicInScene in GameObject.FindGameObjectsWithTag("Dynamic"))
-                {
-                    UnityEngine.Transform dynamicInSceneTransform = dynamicInScene.transform;
-                    buildMap.ConvertToDynamic(node, xml, dynamicInScene, dynamicInSceneTransform);
-                }
-            
+            // Camera
+            foreach (GameObject camInScene in GameObject.FindGameObjectsWithTag("Camera"))
+            {
+                //Note: This is actually a trigger, but with camera zoom properties
+                buildMap.ConvertToCamera(node, xml, camInScene);
+            }
 
-            
+            // Dynamic
+            foreach (GameObject dynamicInScene in GameObject.FindGameObjectsWithTag("Dynamic"))
+            {
+                UnityEngine.Transform dynamicInSceneTransform = dynamicInScene.transform;
+                buildMap.ConvertToDynamic(node, xml, dynamicInScene, dynamicInSceneTransform);
+            }
+
+
+
         }
 
         // vv  Build level directly into Vector (sweet !)  vv
@@ -249,7 +261,7 @@ public class BuildMapVec2 : MonoBehaviour
         {
             buildMap.MoveXML(useDZ);
         }
-        
+
 
         // Show Stopwatch
         stopwatch.Stop();
@@ -471,25 +483,33 @@ public class BuildMapVec2 : MonoBehaviour
                     propertiesElement.AppendChild(staticElement);
                     ielement.AppendChild(propertiesElement);
 
-                    if (imageInScene.name == "traps_shadows.gradient")
+                    Color color = spriteRenderer.color;
+                    if (color.r != 1.000 || color.g != 1.000 || color.b != 1.000)
+                    {
+                        XmlElement colorElement = xml.CreateElement("StartColor");
+                        colorElement.SetAttribute("Color", "#" + ColorUtility.ToHtmlStringRGB(color).ToString());
+                        staticElement.AppendChild(colorElement);
+                    }
+
+                    if (Regex.Replace(imageInScene.name, @" \((.*?)\)", string.Empty) == "traps_shadows.gradient")
                     {
                         XmlElement blendElement = xml.CreateElement("BlendMode");
                         blendElement.SetAttribute("Mode", "Multiply");
                         staticElement.AppendChild(blendElement);
                     }
-                    if (imageInScene.name == "traps_shadows.gradient_rounded")
+                    if (Regex.Replace(imageInScene.name, @" \((.*?)\)", string.Empty) == "traps_shadows.gradient_rounded")
                     {
                         XmlElement blendElement = xml.CreateElement("BlendMode");
                         blendElement.SetAttribute("Mode", "Multiply");
                         staticElement.AppendChild(blendElement);
                     }
-                    if (imageInScene.name == "traps_shadows.gradient_intense")
+                    if (Regex.Replace(imageInScene.name, @" \((.*?)\)", string.Empty) == "traps_shadows.gradient_intense")
                     {
                         XmlElement blendElement = xml.CreateElement("BlendMode");
                         blendElement.SetAttribute("Mode", "Multiply");
                         staticElement.AppendChild(blendElement);
                     }
-                    if (imageInScene.name == "traps_shadows.gradient_intense_rounded")
+                    if (Regex.Replace(imageInScene.name, @" \((.*?)\)", string.Empty) == "traps_shadows.gradient_intense_rounded")
                     {
                         XmlElement blendElement = xml.CreateElement("BlendMode");
                         blendElement.SetAttribute("Mode", "Multiply");
@@ -498,8 +518,8 @@ public class BuildMapVec2 : MonoBehaviour
 
                 }
             }
-       
-           node.AppendChild(ielement); //Place it into the Object node
+
+            node.AppendChild(ielement); //Place it into the Object node
             xml.Save(Application.dataPath + "/XML/dzip/level_xml/" + mapToOverride + ".xml"); //Apply the modification to the build-map.xml file}
         }
     }
@@ -534,7 +554,7 @@ public class BuildMapVec2 : MonoBehaviour
         Ty = 0;
     }
 
-    
+
     void ConvertToAnimation(XmlNode node, XmlDocument xml, GameObject animationInScene)
     {
         AnimationProperties AnimationComponent = animationInScene.GetComponent<AnimationProperties>(); // Animation Properties Component
@@ -569,7 +589,7 @@ public class BuildMapVec2 : MonoBehaviour
             }
 
             animationElement.SetAttribute("ClassName", Regex.Replace(animationInScene.name, @" \((.*?)\)", string.Empty)); //Add a name
-           node.AppendChild(animationElement); //Place it into the Object node
+            node.AppendChild(animationElement); //Place it into the Object node
             xml.Save(Application.dataPath + "/XML/dzip/level_xml/" + mapToOverride + ".xml"); //Apply the modification to the build-map.xml file}
         }
     }
@@ -584,24 +604,24 @@ public class BuildMapVec2 : MonoBehaviour
             RefElement.SetAttribute("X", (ObjectReferenceTagInScene.transform.position.x * 100).ToString().Replace(',', '.')); //Add X position (Refit into the Vector units)
             RefElement.SetAttribute("Y", (-ObjectReferenceTagInScene.transform.position.y * 100).ToString().Replace(',', '.')); // Add Y position (Negative because Vector see the world upside down)
             RefElement.SetAttribute("Filename", objectReference.FileName.ToString() + ".xml"); //Add an name
-            
+
 
             if (objectReference.useCustomVariables)
             {
-                    XmlElement contentElement = xml.CreateElement("Properties");
-                    XmlElement staticElement = xml.CreateElement("Static");
+                XmlElement contentElement = xml.CreateElement("Properties");
+                XmlElement staticElement = xml.CreateElement("Static");
 
-                    //xml doesn't format correctly so we load them into a separate doc
-                    XmlDocument tempDoc = new XmlDocument();
-                    tempDoc.LoadXml("<Properties>" + objectReference.CustomVariables + "</Properties>");
-                    foreach (XmlNode childNode in tempDoc.DocumentElement.ChildNodes)
-                    {
-                        XmlNode importedNode = xml.ImportNode(childNode, true);
-                        contentElement.AppendChild(importedNode);
-                        staticElement.AppendChild(contentElement);
-                    }
+                //xml doesn't format correctly so we load them into a separate doc
+                XmlDocument tempDoc = new XmlDocument();
+                tempDoc.LoadXml("<Properties>" + objectReference.CustomVariables + "</Properties>");
+                foreach (XmlNode childNode in tempDoc.DocumentElement.ChildNodes)
+                {
+                    XmlNode importedNode = xml.ImportNode(childNode, true);
+                    contentElement.AppendChild(importedNode);
+                    staticElement.AppendChild(contentElement);
+                }
 
-                    RefElement.AppendChild(contentElement);
+                RefElement.AppendChild(contentElement);
             }
 
             if (ObjectReferenceTagInScene.GetComponent<SpriteRenderer>())
@@ -616,7 +636,7 @@ public class BuildMapVec2 : MonoBehaviour
 
                 // Convert the rotation to the Marmalade transformation matrix
                 float A, B, C, D, Tx, Ty;
-                ConvertToMarmaladeMatrix(ObjectReferenceTagInScene,scale.x, scale.y, out A, out B, out C, out D, out Tx, out Ty);
+                ConvertToMarmaladeMatrix(ObjectReferenceTagInScene, scale.x, scale.y, out A, out B, out C, out D, out Tx, out Ty);
 
                 XmlElement matrixElement = xml.CreateElement("Matrix");
                 matrixElement.SetAttribute("A", A.ToString());
@@ -632,14 +652,14 @@ public class BuildMapVec2 : MonoBehaviour
                 propertiesElement.AppendChild(staticElement);
                 RefElement.AppendChild(propertiesElement);
             }
-           node.AppendChild(RefElement); //Place it into the Object node
+            node.AppendChild(RefElement); //Place it into the Object node
             xml.Save(Application.dataPath + "/XML/dzip/level_xml/" + mapToOverride + ".xml"); //Apply the modification to the build-map.xml file}
         }
 
 
     }
 
-    
+
     void ConvertToObject(XmlNode node, XmlDocument xml, GameObject objectInScene)
     {
         //Debug in log every object it writes
@@ -652,7 +672,7 @@ public class BuildMapVec2 : MonoBehaviour
             element.SetAttribute("Name", Regex.Replace(objectInScene.name, @" \((.*?)\)", string.Empty)); //Add an name
             element.SetAttribute("X", (objectInScene.transform.position.x * 100).ToString().Replace(',', '.')); //Add X position (Refit into the Vector units)
             element.SetAttribute("Y", (-objectInScene.transform.position.y * 100).ToString().Replace(',', '.')); // Add Y position (Negative because Vector see the world upside down)
-           node.AppendChild(element); //Place it into the Object node
+            node.AppendChild(element); //Place it into the Object node
             xml.Save(Application.dataPath + "/XML/dzip/level_xml/" + mapToOverride + ".xml"); //Apply the modification to the build-map.xml file}
         }
 
@@ -674,7 +694,7 @@ public class BuildMapVec2 : MonoBehaviour
         if (debugObjectWriting)
             Debug.Log("Writing object : " + Regex.Replace(platformInScene.name, @" \((.*?)\)", string.Empty));
 
-        if (platformInScene.name != "trapezoid_type2" && platformInScene.name != "trapezoid_type1") // Use a texture called "collision" which should come with this buildmap update folder.
+        if (platformInScene.name != "Camera")
         {
             XmlElement P_element = xml.CreateElement("Platform"); //Create a new node from scratch
             P_element.SetAttribute("X", (platformInScene.transform.position.x * 100).ToString().Replace(',', '.')); //Add X position (Refit into the Vector units)
@@ -696,38 +716,74 @@ public class BuildMapVec2 : MonoBehaviour
                 P_element.SetAttribute("Height", (height * scale.y).ToString()); //Height of the Image
 
             }
-           node.AppendChild(P_element); //Place it into the Object node
+            node.AppendChild(P_element); //Place it into the Object node
             xml.Save(Application.dataPath + "/XML/dzip/level_xml/" + mapToOverride + ".xml"); //Apply the modification to the build-map.xml file}
         }
 
-        // Trapezoid Slope (Type 2 is Downhill, Type 1 is Uphill)
-        else if (platformInScene.name == "trapezoid_type2")
-        {
-            XmlElement T_element = xml.CreateElement("Trapezoid"); //Create a new node from scratch
-            T_element.SetAttribute("X", (platformInScene.transform.position.x * 100).ToString().Replace(',', '.')); //Add X position (Refit into the Vector units)
-            T_element.SetAttribute("Y", (-platformInScene.transform.position.y * 100).ToString().Replace(',', '.')); // Add Y position (Negative because Vector see the world upside down)
-            T_element.SetAttribute("Width", "1000"); //Width of the Trapezoid
-            T_element.SetAttribute("Height", "600"); //Height of the Trapezoid
-            T_element.SetAttribute("Height1", "100"); //Height1 of the Trapezoid
-            T_element.SetAttribute("Type", "2"); //Type of the Trapezoid
-           node.AppendChild(T_element); //Place it into the Object node
-            xml.Save(Application.dataPath + "/XML/dzip/level_xml/" + mapToOverride + ".xml"); //Apply the modification to the build-map.xml file}
-        }
+    }
 
-        else if (platformInScene.name == "trapezoid_type1")
+    void ConvertToTrapezoid(XmlNode node, XmlDocument xml, GameObject trapezoidInScene) // Trapezoid Collision (Slope)
+    {
+        //Debug in log every platform it writes
+        if (debugObjectWriting)
+            Debug.Log("Writing object : " + Regex.Replace(trapezoidInScene.name, @" \((.*?)\)", string.Empty));
+
+        if (Regex.Replace(trapezoidInScene.name, @" \((.*?)\)", string.Empty) == "trapezoid_type1") // Slope Default
         {
             XmlElement T_element = xml.CreateElement("Trapezoid"); //Create a new node from scratch
-            T_element.SetAttribute("X", (platformInScene.transform.position.x * 100).ToString().Replace(',', '.')); //Add X position (Refit into the Vector units)
-            T_element.SetAttribute("Y", (-platformInScene.transform.position.y * 100).ToString().Replace(',', '.')); // Add Y position (Negative because Vector see the world upside down)
-            T_element.SetAttribute("Width", "1000"); //Width of the Trapezoid
-            T_element.SetAttribute("Height", "250"); //Height of the Trapezoid
-            T_element.SetAttribute("Height1", "750"); //Height1 of the Trapezoid
+            T_element.SetAttribute("X", (trapezoidInScene.transform.position.x * 100).ToString().Replace(',', '.')); //Add X position (Refit into the Vector units)
+            T_element.SetAttribute("Y", (-trapezoidInScene.transform.position.y * 100).ToString().Replace(',', '.')); // Add Y position (Negative because Vector see the world upside down)
+
+            SpriteRenderer spriteRenderer = trapezoidInScene.GetComponent<SpriteRenderer>();
+            if (spriteRenderer != null && spriteRenderer.sprite != null) //Get the Sprite Size in Width and Height
+            {
+
+                Bounds bounds = spriteRenderer.sprite.bounds;// Get the bounds of the sprite
+                Vector3 scale = trapezoidInScene.transform.localScale; // Get the GameObject scale
+
+                // Retrieve the image resolution of the sprite
+                float width = bounds.size.x * 100;
+                float height = bounds.size.y * 100;
+
+                // Set the width and height accordingly to the scale in the editor
+                T_element.SetAttribute("Width", (width * scale.x).ToString()); //Width of the Trapezoid
+                T_element.SetAttribute("Height", (height * scale.y + 1).ToString()); //Height1 of the Trapezoid
+
+            }
             T_element.SetAttribute("Type", "1"); //Type of the Trapezoid
-           node.AppendChild(T_element); //Place it into the Object node
+
+            node.AppendChild(T_element); //Place it into the Object node
+            xml.Save(Application.dataPath + "/XML/dzip/level_xml/" + mapToOverride + ".xml"); //Apply the modification to the build-map.xml file}
+        }
+
+        else if (Regex.Replace(trapezoidInScene.name, @" \((.*?)\)", string.Empty) == "trapezoid_type2") // Slope Mirrored
+        {
+            XmlElement T_element = xml.CreateElement("Trapezoid"); //Create a new node from scratch
+            T_element.SetAttribute("X", (trapezoidInScene.transform.position.x * 100).ToString().Replace(',', '.')); //Add X position (Refit into the Vector units)
+            T_element.SetAttribute("Y", (-trapezoidInScene.transform.position.y * 100).ToString().Replace(',', '.')); // Add Y position (Negative because Vector see the world upside down)
+
+            SpriteRenderer spriteRenderer = trapezoidInScene.GetComponent<SpriteRenderer>();
+            if (spriteRenderer != null && spriteRenderer.sprite != null) //Get the Sprite Size in Width and Height
+            {
+
+                Bounds bounds = spriteRenderer.sprite.bounds;// Get the bounds of the sprite
+                Vector3 scale = trapezoidInScene.transform.localScale; // Get the GameObject scale
+
+                // Retrieve the image resolution of the sprite
+                float width = bounds.size.x * 100;
+                float height = bounds.size.y * 100;
+
+                // Set the width and height accordingly to the scale in the editor
+                T_element.SetAttribute("Width", (width * scale.x).ToString()); //Width of the Trapezoid
+                T_element.SetAttribute("Height", (height * scale.y + 1).ToString()); //Height of the Trapezoid
+
+            }
+            T_element.SetAttribute("Type", "2"); //Type of the Trapezoid
+
+            node.AppendChild(T_element); //Place it into the Object node
             xml.Save(Application.dataPath + "/XML/dzip/level_xml/" + mapToOverride + ".xml"); //Apply the modification to the build-map.xml file}
         }
     }
-
 
     void ConvertToTrigger(XmlNode node, XmlDocument xml, GameObject triggerInScene)
     {
@@ -774,7 +830,7 @@ public class BuildMapVec2 : MonoBehaviour
 
                     T_element.AppendChild(contentElement);
 
-                   node.AppendChild(T_element); //Place it into the Object node
+                    node.AppendChild(T_element); //Place it into the Object node
 
                 }
             }
@@ -799,7 +855,7 @@ public class BuildMapVec2 : MonoBehaviour
                     // Set the width and height accordingly to the scale in the editor
                     T_element.SetAttribute("Width", (width * scale.x).ToString()); //Width of the Image
                     T_element.SetAttribute("Height", (height * scale.y).ToString()); //Height of the Image
-                   node.AppendChild(T_element); //Place it into the Object node
+                    node.AppendChild(T_element); //Place it into the Object node
                 }
             }
 
@@ -945,7 +1001,7 @@ public class BuildMapVec2 : MonoBehaviour
         {
             xml.Save(writer);
         }
-        
+
     }
 
     void ConvertToArea(XmlNode node, XmlDocument xml, GameObject areaInScene)
@@ -978,7 +1034,7 @@ public class BuildMapVec2 : MonoBehaviour
 
             }
             A_element.SetAttribute("Type", "Animation"); //Type="Animation"/>
-           node.AppendChild(A_element); //Place it into the Object node
+            node.AppendChild(A_element); //Place it into the Object node
             xml.Save(Application.dataPath + "/XML/dzip/level_xml/" + mapToOverride + ".xml"); //Apply the modification to the build-map.xml file}
         }
     }
@@ -995,11 +1051,11 @@ public class BuildMapVec2 : MonoBehaviour
             A_element.SetAttribute("Y", (-InTagInScene.transform.position.y * 100).ToString().Replace(',', '.')); // Add Y position (Negative because Vector see the world upside down)
 
 
-           node.AppendChild(A_element); //Place it into the Object node
+            node.AppendChild(A_element); //Place it into the Object node
             xml.Save(Application.dataPath + "/XML/dzip/level_xml/" + mapToOverride + ".xml"); //Apply the modification to the build-map.xml file}
         }
     }
-    
+
     void ConvertToOut(XmlNode node, XmlDocument xml, GameObject OutTagInScene)
     {
 
@@ -1011,7 +1067,7 @@ public class BuildMapVec2 : MonoBehaviour
             A_element.SetAttribute("Y", (-OutTagInScene.transform.position.y * 100).ToString().Replace(',', '.')); // Add Y position (Negative because Vector see the world upside down)
 
 
-           node.AppendChild(A_element); //Place it into the Object node
+            node.AppendChild(A_element); //Place it into the Object node
             xml.Save(Application.dataPath + "/XML/dzip/level_xml/" + mapToOverride + ".xml"); //Apply the modification to the build-map.xml file}
         }
     }
@@ -1073,7 +1129,7 @@ public class BuildMapVec2 : MonoBehaviour
             triggerElement.AppendChild(contentElement);
 
             // Append the Trigger element to the XmlDocument
-           node.AppendChild(triggerElement);
+            node.AppendChild(triggerElement);
             xml.Save(Application.dataPath + "/XML/dzip/level_xml/" + mapToOverride + ".xml"); //Apply the modification to the build-map.xml file}
         }
     }
@@ -1087,8 +1143,8 @@ public class BuildMapVec2 : MonoBehaviour
 
         if (dynamicComponent.MovementUsage.IsSizeInterval)
         {
-            objectElement.SetAttribute("X",(dynamicInScene.transform.position.x * 100).ToString().Replace(',', '.'));
-            objectElement.SetAttribute("Y",(-dynamicInScene.transform.position.y * 100).ToString().Replace(',', '.'));
+            objectElement.SetAttribute("X", (dynamicInScene.transform.position.x * 100).ToString().Replace(',', '.'));
+            objectElement.SetAttribute("Y", (-dynamicInScene.transform.position.y * 100).ToString().Replace(',', '.'));
         }
 
         if (!dynamicComponent.MovementUsage.IsSizeInterval)
@@ -1120,7 +1176,7 @@ public class BuildMapVec2 : MonoBehaviour
         // Create Transformation element
         XmlElement transformationElement = xml.CreateElement("Transformation");
         transformationElement.SetAttribute("Name", dynamicComponent.TransformationName);
-        
+
 
         // Move Interval 1
         if (dynamicComponent.MovementUsage.UseMovement1)
@@ -1129,7 +1185,7 @@ public class BuildMapVec2 : MonoBehaviour
             {
                 if (dynamicComponent.MoveInterval1.UseDelay)
                 {
-                    XmlElement delayElement= xml.CreateElement("DelayInterval");
+                    XmlElement delayElement = xml.CreateElement("DelayInterval");
                     delayElement.SetAttribute("Frames", (dynamicComponent.MoveInterval1.Delay * 60).ToString()); //multiply second by 60 frames per second
                     transformationElement.AppendChild(delayElement);
                 }
@@ -1155,7 +1211,7 @@ public class BuildMapVec2 : MonoBehaviour
             {
                 if (dynamicComponent.MoveInterval1.UseDelay)
                 {
-                    XmlElement delayElement= xml.CreateElement("DelayInterval");
+                    XmlElement delayElement = xml.CreateElement("DelayInterval");
                     delayElement.SetAttribute("Frames", (dynamicComponent.MoveInterval1.Delay * 60).ToString()); //multiply second by 60 frames per second
                     transformationElement.AppendChild(delayElement);
                 }
@@ -1191,7 +1247,7 @@ public class BuildMapVec2 : MonoBehaviour
             {
                 if (dynamicComponent.MoveInterval2.UseDelay)
                 {
-                    XmlElement delayElement= xml.CreateElement("DelayInterval");
+                    XmlElement delayElement = xml.CreateElement("DelayInterval");
                     delayElement.SetAttribute("Frames", (dynamicComponent.MoveInterval2.Delay * 60).ToString()); //multiply second by 60 frames per second
                     transformationElement.AppendChild(delayElement);
                 }
@@ -1217,7 +1273,7 @@ public class BuildMapVec2 : MonoBehaviour
             {
                 if (dynamicComponent.MoveInterval2.UseDelay)
                 {
-                    XmlElement delayElement= xml.CreateElement("DelayInterval");
+                    XmlElement delayElement = xml.CreateElement("DelayInterval");
                     delayElement.SetAttribute("Frames", (dynamicComponent.MoveInterval2.Delay * 60).ToString()); //multiply second by 60 frames per second
                     transformationElement.AppendChild(delayElement);
                 }
@@ -1253,7 +1309,7 @@ public class BuildMapVec2 : MonoBehaviour
             {
                 if (dynamicComponent.MoveInterval3.UseDelay)
                 {
-                    XmlElement delayElement= xml.CreateElement("DelayInterval");
+                    XmlElement delayElement = xml.CreateElement("DelayInterval");
                     delayElement.SetAttribute("Frames", (dynamicComponent.MoveInterval3.Delay * 60).ToString()); //multiply second by 60 frames per second
                     transformationElement.AppendChild(delayElement);
                 }
@@ -1279,7 +1335,7 @@ public class BuildMapVec2 : MonoBehaviour
             {
                 if (dynamicComponent.MoveInterval3.UseDelay)
                 {
-                    XmlElement delayElement= xml.CreateElement("DelayInterval");
+                    XmlElement delayElement = xml.CreateElement("DelayInterval");
                     delayElement.SetAttribute("Frames", (dynamicComponent.MoveInterval3.Delay * 60).ToString()); //multiply second by 60 frames per second
                     transformationElement.AppendChild(delayElement);
                 }
@@ -1315,7 +1371,7 @@ public class BuildMapVec2 : MonoBehaviour
             {
                 if (dynamicComponent.MoveInterval4.UseDelay)
                 {
-                    XmlElement delayElement= xml.CreateElement("DelayInterval");
+                    XmlElement delayElement = xml.CreateElement("DelayInterval");
                     delayElement.SetAttribute("Frames", (dynamicComponent.MoveInterval4.Delay * 60).ToString()); //multiply second by 60 frames per second
                     transformationElement.AppendChild(delayElement);
                 }
@@ -1341,7 +1397,7 @@ public class BuildMapVec2 : MonoBehaviour
             {
                 if (dynamicComponent.MoveInterval4.UseDelay)
                 {
-                    XmlElement delayElement= xml.CreateElement("DelayInterval");
+                    XmlElement delayElement = xml.CreateElement("DelayInterval");
                     delayElement.SetAttribute("Frames", (dynamicComponent.MoveInterval4.Delay * 60).ToString()); //multiply second by 60 frames per second
                     transformationElement.AppendChild(delayElement);
                 }
@@ -1377,7 +1433,7 @@ public class BuildMapVec2 : MonoBehaviour
             {
                 if (dynamicComponent.MoveInterval5.UseDelay)
                 {
-                    XmlElement delayElement= xml.CreateElement("DelayInterval");
+                    XmlElement delayElement = xml.CreateElement("DelayInterval");
                     delayElement.SetAttribute("Frames", (dynamicComponent.MoveInterval5.Delay * 60).ToString()); //multiply second by 60 frames per second
                     transformationElement.AppendChild(delayElement);
                 }
@@ -1403,7 +1459,7 @@ public class BuildMapVec2 : MonoBehaviour
             {
                 if (dynamicComponent.MoveInterval5.UseDelay)
                 {
-                    XmlElement delayElement= xml.CreateElement("DelayInterval");
+                    XmlElement delayElement = xml.CreateElement("DelayInterval");
                     delayElement.SetAttribute("Frames", (dynamicComponent.MoveInterval5.Delay * 60).ToString()); //multiply second by 60 frames per second
                     transformationElement.AppendChild(delayElement);
                 }
@@ -1464,24 +1520,24 @@ public class BuildMapVec2 : MonoBehaviour
                 RefElement.SetAttribute("X", (childObject.transform.position.x * 100).ToString().Replace(',', '.')); //Add X position (Refit into the Vector units)
                 RefElement.SetAttribute("Y", (-childObject.transform.position.y * 100).ToString().Replace(',', '.')); // Add Y position (Negative because Vector see the world upside down)
                 RefElement.SetAttribute("Filename", objectReference.FileName.ToString() + ".xml"); //Add an name
-                
+
 
                 if (objectReference.useCustomVariables)
                 {
-                        XmlElement refpropertiesElement = xml.CreateElement("Properties");
-                        XmlElement staticElement = xml.CreateElement("Static");
+                    XmlElement refpropertiesElement = xml.CreateElement("Properties");
+                    XmlElement staticElement = xml.CreateElement("Static");
 
-                        //xml doesn't format correctly so we load them into a separate doc
-                        XmlDocument tempDoc = new XmlDocument();
-                        tempDoc.LoadXml("<Properties>" + objectReference.CustomVariables + "</Properties>");
-                        foreach (XmlNode childNode in tempDoc.DocumentElement.ChildNodes)
-                        {
-                            XmlNode importedNode = xml.ImportNode(childNode, true);
-                            refpropertiesElement.AppendChild(importedNode);
-                            staticElement.AppendChild(refpropertiesElement);
-                        }
+                    //xml doesn't format correctly so we load them into a separate doc
+                    XmlDocument tempDoc = new XmlDocument();
+                    tempDoc.LoadXml("<Properties>" + objectReference.CustomVariables + "</Properties>");
+                    foreach (XmlNode childNode in tempDoc.DocumentElement.ChildNodes)
+                    {
+                        XmlNode importedNode = xml.ImportNode(childNode, true);
+                        refpropertiesElement.AppendChild(importedNode);
+                        staticElement.AppendChild(refpropertiesElement);
+                    }
 
-                        RefElement.AppendChild(refpropertiesElement);
+                    RefElement.AppendChild(refpropertiesElement);
                 }
                 contentElement.AppendChild(RefElement);
             }
@@ -1548,11 +1604,37 @@ public class BuildMapVec2 : MonoBehaviour
             else if (childObject.gameObject.CompareTag("Platform"))
             {
                 //Platform
-                if (childObject.name != "trapezoid_type2" && childObject.name != "trapezoid_type1" && childObject.gameObject.CompareTag("Platform")) // Use a texture called "collision" which should come with this buildmap update folder.
+                XmlElement P_element = xml.CreateElement("Platform"); //Create a new node from scratch
+                P_element.SetAttribute("X", (childObject.transform.position.x * 100).ToString().Replace(',', '.')); //Add X position (Refit into the Vector units)
+                P_element.SetAttribute("Y", (-childObject.transform.position.y * 100).ToString().Replace(',', '.')); // Add Y position (Negative because Vector see the world upside down)
+
+                SpriteRenderer spriteRenderer = childObject.GetComponent<SpriteRenderer>();
+                if (spriteRenderer != null && spriteRenderer.sprite != null) //Get the Sprite Size in Width and Height
                 {
-                    XmlElement P_element = xml.CreateElement("Platform"); //Create a new node from scratch
-                    P_element.SetAttribute("X", (childObject.transform.position.x * 100).ToString().Replace(',', '.')); //Add X position (Refit into the Vector units)
-                    P_element.SetAttribute("Y", (-childObject.transform.position.y * 100).ToString().Replace(',', '.')); // Add Y position (Negative because Vector see the world upside down)
+
+                    Bounds bounds = spriteRenderer.sprite.bounds;// Get the bounds of the sprite
+                    Vector3 scale = childObject.transform.localScale; // Get the GameObject scale
+
+                    // Retrieve the image resolution of the sprite
+                    float width = bounds.size.x * 100;
+                    float height = bounds.size.y * 100;
+
+                    // Set the width and height accordingly to the scale in the editor
+                    P_element.SetAttribute("Width", (width * scale.x).ToString()); //Width of the Image
+                    P_element.SetAttribute("Height", (height * scale.y).ToString()); //Height of the Image
+
+                }
+                contentElement.AppendChild(P_element);
+      
+            }
+            else if (childObject.gameObject.CompareTag("Trapezoid"))
+            {
+                // Trapezoid
+                if (Regex.Replace(childObject.name, @" \((.*?)\)", string.Empty) == "trapezoid_type1") // Slope Default
+                {
+                    XmlElement T_element = xml.CreateElement("Trapezoid"); //Create a new node from scratch
+                    T_element.SetAttribute("X", (childObject.transform.position.x * 100).ToString().Replace(',', '.')); //Add X position (Refit into the Vector units)
+                    T_element.SetAttribute("Y", (-childObject.transform.position.y * 100).ToString().Replace(',', '.')); // Add Y position (Negative because Vector see the world upside down)
 
                     SpriteRenderer spriteRenderer = childObject.GetComponent<SpriteRenderer>();
                     if (spriteRenderer != null && spriteRenderer.sprite != null) //Get the Sprite Size in Width and Height
@@ -1566,34 +1648,41 @@ public class BuildMapVec2 : MonoBehaviour
                         float height = bounds.size.y * 100;
 
                         // Set the width and height accordingly to the scale in the editor
-                        P_element.SetAttribute("Width", (width * scale.x).ToString()); //Width of the Image
-                        P_element.SetAttribute("Height", (height * scale.y).ToString()); //Height of the Image
+                        T_element.SetAttribute("Width", (width * scale.x).ToString()); //Width of the Trapezoid
+                        T_element.SetAttribute("Height", "1"); //Height of the Trapezoid
+                        T_element.SetAttribute("Height1", (height * scale.y + 1).ToString()); //Height1 of the Trapezoid
 
                     }
-                    contentElement.AppendChild(P_element);
-                }
-                // Trapezoid Slope (Type 2 is Downhill, Type 1 is Uphill)
-                else if (childObject.name == "trapezoid_type2" && childObject.CompareTag("Platform"))
-                {
-                    XmlElement T_element = xml.CreateElement("Trapezoid"); //Create a new node from scratch
-                    T_element.SetAttribute("X", (childObject.transform.position.x * 100).ToString().Replace(',', '.')); //Add X position (Refit into the Vector units)
-                    T_element.SetAttribute("Y", (-childObject.transform.position.y * 100).ToString().Replace(',', '.')); // Add Y position (Negative because Vector see the world upside down)
-                    T_element.SetAttribute("Width", "1000"); //Width of the Trapezoid
-                    T_element.SetAttribute("Height", "600"); //Height of the Trapezoid
-                    T_element.SetAttribute("Height1", "100"); //Height1 of the Trapezoid
-                    T_element.SetAttribute("Type", "2"); //Type of the Trapezoid
+                    T_element.SetAttribute("Type", "1"); //Type of the Trapezoid
+
                     contentElement.AppendChild(T_element);
                 }
 
-                else if (childObject.name == "trapezoid_type1" && childObject.CompareTag("Platform"))
+                else if (Regex.Replace(childObject.name, @" \((.*?)\)", string.Empty) == "trapezoid_type2") // Slope Mirrored
                 {
                     XmlElement T_element = xml.CreateElement("Trapezoid"); //Create a new node from scratch
                     T_element.SetAttribute("X", (childObject.transform.position.x * 100).ToString().Replace(',', '.')); //Add X position (Refit into the Vector units)
                     T_element.SetAttribute("Y", (-childObject.transform.position.y * 100).ToString().Replace(',', '.')); // Add Y position (Negative because Vector see the world upside down)
-                    T_element.SetAttribute("Width", "1000"); //Width of the Trapezoid
-                    T_element.SetAttribute("Height", "250"); //Height of the Trapezoid
-                    T_element.SetAttribute("Height1", "750"); //Height1 of the Trapezoid
-                    T_element.SetAttribute("Type", "1"); //Type of the Trapezoid
+
+                    SpriteRenderer spriteRenderer = childObject.GetComponent<SpriteRenderer>();
+                    if (spriteRenderer != null && spriteRenderer.sprite != null) //Get the Sprite Size in Width and Height
+                    {
+
+                        Bounds bounds = spriteRenderer.sprite.bounds;// Get the bounds of the sprite
+                        Vector3 scale = childObject.transform.localScale; // Get the GameObject scale
+
+                        // Retrieve the image resolution of the sprite
+                        float width = bounds.size.x * 100;
+                        float height = bounds.size.y * 100;
+
+                        // Set the width and height accordingly to the scale in the editor
+                        T_element.SetAttribute("Width", (width * scale.x).ToString()); //Width of the Trapezoid
+                        T_element.SetAttribute("Height", (height * scale.y + 1).ToString()); //Height of the Trapezoid
+                        T_element.SetAttribute("Height1", "1"); //Height1 of the Trapezoid
+
+                    }
+                    T_element.SetAttribute("Type", "2"); //Type of the Trapezoid
+
                     contentElement.AppendChild(T_element);
                 }
             }
@@ -1831,7 +1920,7 @@ public class BuildMapVec2 : MonoBehaviour
             objectElement.AppendChild(contentElement);
         }
 
-       node.AppendChild(objectElement); //Place it into the Object node
+        node.AppendChild(objectElement); //Place it into the Object node
         xml.Save(Application.dataPath + "/XML/dzip/level_xml/" + mapToOverride + ".xml"); //Apply the modification to the build-map.xml file}
     }
 
