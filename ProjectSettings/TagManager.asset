@@ -2,7 +2,7 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!78 &1
 TagManager:
-  serializedVersion: 2
+  serializedVersion: 3
   tags:
   - Object
   - Image
@@ -17,6 +17,8 @@ TagManager:
   - Animation
   - Dynamic Trigger
   - Trapezoid
+  - Spawn
+  - Unused
   layers:
   - Default
   - TransparentFX
@@ -51,15 +53,143 @@ TagManager:
   - 
   - 
   m_SortingLayers:
-  - name: Wall
-    uniqueID: 3639975893
+  - name: BgFurther
+    uniqueID: 1906178461
     locked: 0
-  - name: Black
-    uniqueID: 1467642749
+  - name: BgVeryVeryFar
+    uniqueID: 587694646
+    locked: 0
+  - name: BgVeryFar
+    uniqueID: 1998894711
+    locked: 0
+  - name: BgFar
+    uniqueID: 1701844994
+    locked: 0
+  - name: BgMiddle
+    uniqueID: 2076138541
+    locked: 0
+  - name: BgClose
+    uniqueID: 1689681733
+    locked: 0
+  - name: BgVeryClose
+    uniqueID: 913568423
+    locked: 0
+  - name: Bg_0.5
+    uniqueID: 795855061
+    locked: 0
+  - name: Wall
+    uniqueID: 1395016828
+    locked: 0
+  - name: CAperture
+    uniqueID: 1383668794
+    locked: 0
+  - name: CApertureAdd
+    uniqueID: 90322268
+    locked: 0
+  - name: CPanels
+    uniqueID: 749535618
+    locked: 0
+  - name: CPanelsAdd
+    uniqueID: 1305058804
+    locked: 0
+  - name: CDecals
+    uniqueID: 1472977066
+    locked: 0
+  - name: CDecalsAdd
+    uniqueID: 1125640171
+    locked: 0
+  - name: CQuestDecals
+    uniqueID: 133322501
+    locked: 0
+  - name: CQuestDecalsAdd
+    uniqueID: 114648077
+    locked: 0
+  - name: HoloWarningSigns
+    uniqueID: 257071768
+    locked: 0
+  - name: UnderFloorPanels
+    uniqueID: 1929778227
+    locked: 0
+  - name: CutScene
+    uniqueID: 1717114648
+    locked: 0
+  - name: Swarm
+    uniqueID: 1266801379
     locked: 0
   - name: Shadows
-    uniqueID: 4270069939
+    uniqueID: 1352431402
+    locked: 0
+  - name: StuntsLinearDodge
+    uniqueID: 326651525
+    locked: 0
+  - name: Stunts
+    uniqueID: 1027019350
+    locked: 0
+  - name: Black
+    uniqueID: 2015660508
+    locked: 0
+  - name: Collision
+    uniqueID: 4021052973
+    locked: 0
+  - name: BlackAdd
+    uniqueID: 1261628600
+    locked: 0
+  - name: TrapsColor
+    uniqueID: 443528974
+    locked: 0
+  - name: TrapsBlack
+    uniqueID: 525314994
+    locked: 0
+  - name: LaserLow1
+    uniqueID: 1132037071
+    locked: 0
+  - name: LaserLow2
+    uniqueID: 535992385
+    locked: 0
+  - name: LaserMed
+    uniqueID: 2017629037
+    locked: 0
+  - name: LaserHigh
+    uniqueID: 447896859
+    locked: 0
+  - name: LaserHigh2
+    uniqueID: 366660196
+    locked: 0
+  - name: TrapsShadows
+    uniqueID: 509702147
+    locked: 0
+  - name: Sequences
+    uniqueID: 1926519122
+    locked: 0
+  - name: Lights
+    uniqueID: 2055639183
+    locked: 0
+  - name: LightsAdd
+    uniqueID: 961336446
+    locked: 0
+  - name: Model
+    uniqueID: 750277175
+    locked: 0
+  - name: Items
+    uniqueID: 2088146980
+    locked: 0
+  - name: Particles
+    uniqueID: 842687940
+    locked: 0
+  - name: Fg
+    uniqueID: 1837801674
+    locked: 0
+  - name: FgAdd
+    uniqueID: 55408291
+    locked: 0
+  - name: 0
+    uniqueID: 1269977467
     locked: 0
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Debug
+    uniqueID: 717693345
+    locked: 0
+  m_RenderingLayers:
+  - Default

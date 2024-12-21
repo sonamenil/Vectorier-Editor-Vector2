@@ -16,7 +16,8 @@ public class ObjectReference : MonoBehaviour
     obstacles_moving,
     doors,
     doors_service,
-    objects_items
+    objects_items,
+    underfloor
     }
 
     public Filename FileName;
