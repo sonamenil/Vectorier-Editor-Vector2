@@ -55,17 +55,10 @@ Please take them from the textures folder on resources, you can later add z2 tex
    * Shadows: for stuff like gradient
 
    # Lasers
-   To set the height of a laser, select the first three child objects (the laser beam) and resize it, once youve done that, take the y scale and multiply it by 5.
-   So in the object reference component, on LaserReachDistance variable, paste the total scale.
-
-   ![image](https://github.com/user-attachments/assets/a094d6bb-9127-404c-9858-669c97e971ce)     ![image](https://github.com/user-attachments/assets/4b4a0002-0941-44e7-8928-83da1b6e7e93)
+   Extremely simplified the laser system, now just resize the image called laser_complete to set the height of the laser. You can also move the laser activator trigger so it activates sooner or later (only works when global timer is on)
 
    # Dynamic
-   Normal dynamic movement works the same as in Vector 1 editor, but the new thing is the size interval.
-   On the movement usage you have a new option wich is size interval, that makes the dynamic properties be of size instead of movement.
-   Below theres the matrix properties, wich are automatically set to 0.001 (it make the image look tiny), to make the image look normal, set the size interval to 1000, wich will set the matrix to 1.
-
-   For the trigger, you need to make it a separate object (not a child object as usual) and tag it as dynamic trigger, after that it should be like usual.
+   Normal dynamic movement works the same as in Vector 1 editor.
 
 # Packages
 * Used textures from Domnul Inginer
