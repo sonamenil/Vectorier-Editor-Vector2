@@ -1,10 +1,10 @@
 # Vectorier Unity Editor
-Vectorier-Unity-Editor is an level editor for the game Vector using the Unity Engine.
+Vectorier-Unity-Editor is an level editor for the game Vector 2 using the Unity Engine.
 
 A Discord server is open for the project : https://discord.com/invite/pVRuFBVwC2
 
 # Vector 2 Unity project
-(Fully playable!!!!) [Download it here](https://drive.google.com/file/d/1pmIQetfSxCdkMH7MvcS1Jk15HPKyYINf/view?usp=sharing) Unity version 5.6.7f1 required. ([here](https://download.unity3d.com/download_unity/e80cc3114ac1/Windows64EditorInstaller/UnitySetup64-5.6.7f1.exe))
+(Fully playable!!!!) [Download it here](https://drive.google.com/file/d/1tpg1CQjUd0wXGc8aEos9eI9PL7xwFrQl/view?usp=sharing) Unity version 5.6.7f1 required. ([here](https://download.unity3d.com/download_unity/e80cc3114ac1/Windows64EditorInstaller/UnitySetup64-5.6.7f1.exe))
 
 # Features
 * Level Creation
